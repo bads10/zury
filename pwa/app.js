@@ -1,6 +1,5 @@
 import {
-  fetchGarment, compressImage, requestTryOn, pollResult,
-  shareViaWhatsApp, registerSW, API_BASE,
+  fetchGarment, compressImage, requestTryOn, pollResult, shareViaWhatsApp, API_BASE
 } from './api.js';
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
@@ -8,14 +7,14 @@ const $ = id => document.getElementById(id);
 
 // ── Shared state ──────────────────────────────────────────────────────────────
 const state = {
-  sellerSlug:   null,
-  garmentId:    null,
-  garment:      null,
-  selfieFile:   null,      // File original
-  selfieDataUrl: null,     // dataUrl compressé (AVIF/WebP)
-  jobId:        null,
-  resultUrl:    null,
-  pollAbort:    null,      // AbortController
+  sellerSlug:  null,
+  garmentId:   null,
+  garment:     null,
+  selfie:      null,   // File (original, before compression)
+  fitzpatrick: 3,
+  jobId:       null,
+  resultUrl:   null,
+  pollAbort:   null,   // AbortController
 };
 
 // ── Screen switching ──────────────────────────────────────────────────────────
@@ -34,17 +33,26 @@ function showError(title, msg) {
   show('error');
 }
 
-// ── URL helper ────────────────────────────────────────────────────────────────
-function resolveUrl(url) {
-  if (!url) return '';
-  if (url.startsWith('http')) return url;
-  return `${API_BASE}${url}`;
-}
+// ── Theme toggle ──────────────────────────────────────────────────────────────
+(function initTheme() {
+  const root  = document.documentElement;
+  const saved = localStorage.getItem('zury-theme');
+  if (saved) root.setAttribute('data-theme', saved);
+
+  $('btn-theme').addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const isDark  = current === 'dark' ||
+                    (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const next    = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('zury-theme', next);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = next === 'light' ? '#FBF5EC' : '#D4A843';
+  });
+})();
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 async function init() {
-  registerSW();
-
   const p = new URLSearchParams(location.search);
   state.sellerSlug = p.get('seller');
   state.garmentId  = p.get('garment');
@@ -52,10 +60,11 @@ async function init() {
   if (!state.sellerSlug || !state.garmentId) {
     return showError(
       'Paramètres manquants',
-      'Ce lien est incomplet. Demandez un nouveau lien au vendeur.'
+      'Ajoutez ?seller=<slug>&garment=<id> à l’URL pour charger un vêtement.'
     );
   }
 
+  // Show landing immediately with loading skeleton
   show('landing');
   $('screen-landing').classList.add('is-loading');
 
@@ -64,11 +73,7 @@ async function init() {
     populateLanding(state.garment);
     $('screen-landing').classList.remove('is-loading');
   } catch (e) {
-    if (e.code === 'NOT_FOUND') {
-      showError('Vêtement introuvable', 'Ce vêtement n\'est plus disponible.');
-    } else {
-      showError('Connexion impossible', 'Vérifiez votre réseau et réessayez.');
-    }
+    showError('Vêtement introuvable', e.message);
   }
 }
 
@@ -76,11 +81,11 @@ async function init() {
 function populateLanding(g) {
   const img = $('garment-img');
   if (g.image_url) {
-    img.src = resolveUrl(g.image_url);
+    img.src = g.image_url;
     img.alt = g.name;
   }
   $('garment-name').textContent     = g.name;
-  $('garment-seller').textContent   = `par ${g.seller_slug || g.seller_id}`;
+  $('garment-seller').textContent   = `par ${g.seller_id}`;
   $('garment-category').textContent = g.category ?? '';
 }
 
@@ -91,7 +96,7 @@ $('btn-back-capture').addEventListener('click', () => show('landing'));
 
 function setPreview(file) {
   if (!file) return;
-  state.selfieFile = file;
+  state.selfie = file;
 
   const imgEl = $('selfie-preview');
   if (imgEl._blob) URL.revokeObjectURL(imgEl._blob);
@@ -108,8 +113,7 @@ function clearCapture() {
   const imgEl = $('selfie-preview');
   if (imgEl._blob) { URL.revokeObjectURL(imgEl._blob); imgEl._blob = null; }
   imgEl.src = '';
-  state.selfieFile    = null;
-  state.selfieDataUrl = null;
+  state.selfie = null;
 
   $('input-selfie').value  = '';
   $('input-gallery').value = '';
@@ -123,9 +127,7 @@ $('input-selfie').addEventListener('change',  e => setPreview(e.target.files[0])
 $('input-gallery').addEventListener('change', e => setPreview(e.target.files[0]));
 $('btn-retake').addEventListener('click', clearCapture);
 
-// ── Capture — skin tone (Fitzpatrick manuel) ──────────────────────────────────
-// Note : la détection auto ITA est faite dans api.js au moment du submit.
-// Le swatch sélectionné ici sert de fallback si la détection échoue.
+// ── Capture — skin tone ───────────────────────────────────────────────────────
 document.querySelectorAll('.swatch').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.swatch').forEach(b => {
@@ -134,41 +136,37 @@ document.querySelectorAll('.swatch').forEach(btn => {
     });
     btn.classList.add('active');
     btn.setAttribute('aria-checked', 'true');
+    state.fitzpatrick = Number(btn.dataset.fitz);
   });
 });
 
 // ── Capture — submit ──────────────────────────────────────────────────────────
 $('btn-submit').addEventListener('click', async () => {
-  if (!state.selfieFile) return;
-
-  const btn = $('btn-submit');
-  btn.disabled    = true;
-  btn.textContent = 'Compression…';
-
+  if (!state.selfie) return;
+  $('btn-submit').disabled    = true;
+  $('btn-submit').textContent = 'Compression…';
   try {
-    // Compress → dataUrl (AVIF ou WebP selon device)
-    state.selfieDataUrl = await compressImage(state.selfieFile);
-    await startTryOn();
+    const compressed = await compressImage(state.selfie);
+    await startTryOn(compressed);
   } catch (e) {
-    btn.disabled  = false;
-    btn.innerHTML = 'Générer l\'essayage <span aria-hidden="true">✨</span>';
-    showError('Erreur d\'image', e.message);
+    $('btn-submit').disabled    = false;
+    $('btn-submit').innerHTML   = 'Générer l’essayage <span aria-hidden="true">✨</span>';
+    showError('Erreur d’image', e.message);
   }
 });
 
 // ── Processing ────────────────────────────────────────────────────────────────
-async function startTryOn() {
+async function startTryOn(selfie) {
   show('processing');
   setProgress(0);
 
   try {
-    // Fitzpatrick détecté automatiquement dans api.js via ITA
     const { job_id } = await requestTryOn({
-      selfieDataUrl: state.selfieDataUrl,
-      garmentId:     state.garmentId,
-      sellerId:      state.garment.seller_id,
+      selfie,
+      garmentId:   state.garmentId,
+      sellerId:    state.garment.seller_id,
+      fitzpatrick: state.fitzpatrick,
     });
-
     state.jobId     = job_id;
     state.pollAbort = new AbortController();
 
@@ -181,46 +179,31 @@ async function startTryOn() {
     renderResult();
   } catch (e) {
     if (e.name === 'AbortError') return;
-    if (e.message === 'offline_queued') {
-      showError(
-        'Connexion perdue',
-        'Votre photo a été sauvegardée. Reconnectez-vous pour continuer.'
-      );
-      return;
-    }
     showError('Traitement échoué', e.message);
   }
 }
 
 function setProgress(pct) {
   $('progress-fill').style.width = `${pct}%`;
-  $('progress-pct').textContent  = `${Math.round(pct)}%`;
+  $('progress-pct').textContent  = `${pct}%`;
   $('progress-track').setAttribute('aria-valuenow', pct);
 }
 
 // ── Result ────────────────────────────────────────────────────────────────────
 function renderResult() {
-  const resultAbsUrl = resolveUrl(state.resultUrl);
-  $('result-img').src              = resultAbsUrl;
+  $('result-img').src              = `${API_BASE}${state.resultUrl}`;
   $('result-garment-name').textContent = state.garment?.name ?? '';
 
-  // Reset submit button pour un prochain essayage
-  const btn = $('btn-submit');
-  btn.disabled  = false;
-  btn.innerHTML = 'Générer l\'essayage <span aria-hidden="true">✨</span>';
+  // Reset submit button for next run
+  $('btn-submit').disabled  = false;
+  $('btn-submit').innerHTML = 'Générer l’essayage <span aria-hidden="true">✨</span>';
 
   show('result');
 }
 
-$('btn-share').addEventListener('click', () => {
-  const tryOnUrl = `${location.origin}${location.pathname}${location.search}`;
-  shareViaWhatsApp({
-    resultImageUrl: resolveUrl(state.resultUrl),
-    sellerName:     state.garment?.seller_slug ?? 'le vendeur',
-    garmentName:    state.garment?.name ?? '',
-    tryOnUrl,
-  });
-});
+$('btn-share').addEventListener('click', () =>
+  shareViaWhatsApp(state.resultUrl, state.garment?.name ?? '')
+);
 
 $('btn-order').addEventListener('click', () =>
   window.open(state.garment?.meta?.order_url ?? '#', '_blank')
@@ -235,5 +218,9 @@ $('btn-retry').addEventListener('click', () => {
 // ── Error retry ───────────────────────────────────────────────────────────────
 $('btn-error-retry').addEventListener('click', () => init());
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Service worker ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
 init();
