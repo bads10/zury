@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#D4A843">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Zury">
+  <title>Zury — Essayage virtuel</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/500.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans@5/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans@5/600.css">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 1 — LANDING
+       Shows garment image + CTA
+  ════════════════════════════════════════════════ -->
+  <section id="screen-landing" class="screen screen--landing" hidden aria-label="Détails du vêtement">
+    <div class="landing__hero" aria-hidden="true">
+      <img id="garment-img" class="landing__img" src="" alt="">
+      <div class="landing__gradient"></div>
+    </div>
+    <div class="landing__body">
+      <span class="landing__badge">ZURY</span>
+      <h1 id="garment-name"     class="landing__name"></h1>
+      <p  id="garment-seller"   class="landing__seller"></p>
+      <p  id="garment-category" class="landing__category"></p>
+      <button id="btn-tryon" class="btn btn--gold landing__cta">
+        Essayer sur moi <span class="btn__icon" aria-hidden="true">→</span>
+      </button>
+      <p class="landing__hint">Voyez comment il vous va en quelques secondes</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 2 — CAPTURE
+       Selfie upload + skin tone + submit
+  ════════════════════════════════════════════════ -->
+  <section id="screen-capture" class="screen screen--capture" hidden aria-label="Votre selfie">
+    <header class="topbar">
+      <button id="btn-back-capture" class="topbar__back" aria-label="Retour au vêtement">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <span class="topbar__title">Votre selfie</span>
+      <span aria-hidden="true" style="width:40px"></span>
+    </header>
+
+    <div class="capture__body">
+
+      <!-- Upload zone (visible by default) -->
+      <div id="upload-zone" class="upload-zone">
+        <div class="upload-zone__icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22.5" stroke="#D4A843" stroke-width="1"
+                    stroke-dasharray="4 3.2" stroke-linecap="round"/>
+            <path d="M24 14v12M18 20l6-6 6 6"
+                  stroke="#D4A843" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="24" cy="33" r="1.8" fill="#D4A843"/>
+          </svg>
+        </div>
+        <p class="upload-zone__title">Prenez ou importez un selfie</p>
+        <p class="upload-zone__hint">Face caméra · bonne lumière · sans chapeau</p>
+        <div class="upload-zone__btns">
+          <label class="btn btn--ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Caméra
+            <input type="file" id="input-selfie" accept="image/*" capture="user" hidden>
+          </label>
+          <label class="btn btn--ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Galerie
+            <input type="file" id="input-gallery" accept="image/*" hidden>
+          </label>
+        </div>
+      </div>
+
+      <!-- Selfie preview (shown after selection) -->
+      <div id="preview-wrap" class="preview-wrap" hidden>
+        <img id="selfie-preview" class="preview-wrap__img" alt="Votre selfie">
+        <button id="btn-retake" class="preview-wrap__retake-btn">Reprendre</button>
+      </div>
+
+      <!-- Skin tone (shown after selection) -->
+      <div id="skin-select" class="skin-select" hidden>
+        <p class="skin-select__label">Votre teinte de peau</p>
+        <div class="skin-select__swatches" role="radiogroup" aria-label="Échelle de Fitzpatrick">
+          <button class="swatch" data-fitz="1" style="--tone:#FDDBB4"
+                  title="Type I" aria-label="Type I" role="radio" aria-checked="false"></button>
+          <button class="swatch" data-fitz="2" style="--tone:#EFC69F"
+                  title="Type II" aria-label="Type II" role="radio" aria-checked="false"></button>
+          <button class="swatch active" data-fitz="3" style="--tone:#D4A574"
+                  title="Type III" aria-label="Type III" role="radio" aria-checked="true"></button>
+          <button class="swatch" data-fitz="4" style="--tone:#B07D56"
+                  title="Type IV" aria-label="Type IV" role="radio" aria-checked="false"></button>
+          <button class="swatch" data-fitz="5" style="--tone:#7B4F35"
+                  title="Type V" aria-label="Type V" role="radio" aria-checked="false"></button>
+          <button class="swatch" data-fitz="6" style="--tone:#4A2C1A"
+                  title="Type VI" aria-label="Type VI" role="radio" aria-checked="false"></button>
+        </div>
+      </div>
+
+      <!-- Submit (shown after selection) -->
+      <div id="submit-wrap" class="submit-wrap" hidden>
+        <button id="btn-submit" class="btn btn--gold">
+          Générer l'essayage <span aria-hidden="true">✨</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 3 — PROCESSING
+       Animated rings + progress bar
+  ════════════════════════════════════════════════ -->
+  <section id="screen-processing" class="screen screen--processing" hidden
+           aria-label="Génération de votre essayage" aria-live="polite">
+    <div class="processing__content">
+      <div class="rings" aria-hidden="true">
+        <div class="ring ring--1"></div>
+        <div class="ring ring--2"></div>
+        <div class="ring ring--3"></div>
+      </div>
+      <h2 class="processing__title">Création de votre<br>essayage…</h2>
+      <div id="progress-track" class="progress-track"
+           role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="progress-fill" class="progress-track__fill"></div>
+      </div>
+      <p id="progress-pct" class="processing__pct" aria-live="polite">0%</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 4 — RESULT
+       Try-on image + share + order
+  ════════════════════════════════════════════════ -->
+  <section id="screen-result" class="screen screen--result" hidden aria-label="Votre résultat d'essayage">
+    <div class="result__hero">
+      <img id="result-img" class="result__img" alt="Votre résultat d'essayage virtuel">
+    </div>
+    <div class="result__body">
+      <h2 id="result-garment-name" class="result__name"></h2>
+      <div class="result__actions">
+        <button id="btn-share" class="btn btn--whatsapp">
+          <!-- WhatsApp logo -->
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+          </svg>
+          Partager sur WhatsApp
+        </button>
+        <button id="btn-order" class="btn btn--gold">
+          Commander sur WhatsApp →
+        </button>
+      </div>
+      <button id="btn-retry" class="btn btn--text">Réessayer avec une autre photo</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN ERROR
+  ════════════════════════════════════════════════ -->
+  <section id="screen-error" class="screen screen--error" hidden
+           aria-label="Erreur" aria-live="assertive">
+    <div class="error__content">
+      <div class="error__icon" aria-hidden="true">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
+             stroke="#C4622D" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="13"/>
+          <circle cx="12" cy="16.5" r=".75" fill="#C4622D" stroke="none"/>
+        </svg>
+      </div>
+      <h2 id="error-title"   class="error__title">Quelque chose s'est passé</h2>
+      <p  id="error-message" class="error__msg"></p>
+      <button id="btn-error-retry" class="btn btn--gold" style="max-width:200px">
+        Réessayer
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
