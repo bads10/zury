@@ -123,6 +123,8 @@ function clearCapture() {
   $('submit-wrap').hidden  = true;
 }
 
+$('btn-camera').addEventListener('click',  () => $('input-selfie').click());
+$('btn-gallery').addEventListener('click', () => $('input-gallery').click());
 $('input-selfie').addEventListener('change',  e => setPreview(e.target.files[0]));
 $('input-gallery').addEventListener('change', e => setPreview(e.target.files[0]));
 $('btn-retake').addEventListener('click', clearCapture);
