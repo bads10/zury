@@ -77,15 +77,22 @@ async function init() {
   }
 }
 
+// ── URL helper ────────────────────────────────────────────────────────────────
+function resolveUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${API_BASE}${url}`;
+}
+
 // ── Landing ───────────────────────────────────────────────────────────────────
 function populateLanding(g) {
   const img = $('garment-img');
   if (g.image_url) {
-    img.src = g.image_url;
+    img.src = resolveUrl(g.image_url);
     img.alt = g.name;
   }
   $('garment-name').textContent     = g.name;
-  $('garment-seller').textContent   = `par ${g.seller_id}`;
+  $('garment-seller').textContent   = `par ${g.seller_slug || g.seller_id}`;
   $('garment-category').textContent = g.category ?? '';
 }
 
@@ -193,7 +200,7 @@ function setProgress(pct) {
 
 // ── Result ────────────────────────────────────────────────────────────────────
 function renderResult() {
-  $('result-img').src              = `${API_BASE}${state.resultUrl}`;
+  $('result-img').src              = resolveUrl(state.resultUrl);
   $('result-garment-name').textContent = state.garment?.name ?? '';
 
   // Reset submit button for next run
