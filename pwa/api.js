@@ -92,6 +92,7 @@ export function detectFitzpatrick(imageDataUrl) {
       else                zone = 6;
       resolve(zone);
     };
+    img.onerror = () => resolve(4); // fallback Fitzpatrick IV si dataUrl invalide
     img.src = imageDataUrl;
   });
 }

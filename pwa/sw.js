@@ -4,7 +4,7 @@
 //   - Background sync pour les uploads en cas de déconnexion
 //   - Fallback offline avec page de retry
 
-const CACHE_VERSION = 'tryon-v2';
+const CACHE_VERSION = 'tryon-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE  = `${CACHE_VERSION}-images`;
 

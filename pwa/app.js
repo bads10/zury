@@ -1,6 +1,6 @@
 import {
   fetchGarment, compressImage, requestTryOn, pollResult, shareViaWhatsApp, API_BASE
-} from './api.js?v=4';
+} from './api.js?v=5';
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
