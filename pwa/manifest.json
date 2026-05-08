@@ -1,18 +1,51 @@
 {
-  "name": "Zury",
-  "short_name": "Zury",
-  "description": "Virtual try-on — see before you buy",
-  "start_url": "/?pwa=1",
+  "name": "Try-On — Mode Africaine",
+  "short_name": "TryOn",
+  "description": "Essayez les vêtements africains avant d'acheter",
+  "start_url": "/?source=pwa",
   "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#D4A843",
   "background_color": "#150A03",
+  "theme_color": "#D4A843",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "scope": "/",
+  "categories": ["shopping", "lifestyle"],
   "icons": [
+    { "src": "/icons/icon-72.png",   "sizes": "72x72",   "type": "image/png" },
+    { "src": "/icons/icon-96.png",   "sizes": "96x96",   "type": "image/png" },
+    { "src": "/icons/icon-128.png",  "sizes": "128x128", "type": "image/png" },
+    { "src": "/icons/icon-144.png",  "sizes": "144x144", "type": "image/png" },
+    { "src": "/icons/icon-152.png",  "sizes": "152x152", "type": "image/png" },
+    { "src": "/icons/icon-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-384.png",  "sizes": "384x384", "type": "image/png" },
+    { "src": "/icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/screenshots/landing.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Vitrine vêtement"
+    },
+    {
+      "src": "/screenshots/result.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Résultat try-on"
     }
-  ]
+  ],
+  "share_target": {
+    "action": "/try-on",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [{ "name": "image", "accept": ["image/*"] }]
+    }
+  },
+  "related_applications": [],
+  "prefer_related_applications": false
 }
