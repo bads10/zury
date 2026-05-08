@@ -165,13 +165,13 @@ $('btn-submit').addEventListener('click', async () => {
 });
 
 // ── Processing ────────────────────────────────────────────────────────────────
-async function startTryOn(selfie) {
+async function startTryOn(selfieDataUrl) {
   show('processing');
   setProgress(0);
 
   try {
     const { job_id } = await requestTryOn({
-      selfie,
+      selfieDataUrl,
       garmentId:   state.garmentId,
       sellerId:    state.garment.seller_id,
       fitzpatrick: state.fitzpatrick,
