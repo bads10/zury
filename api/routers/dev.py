@@ -59,7 +59,8 @@ def seed_demo_seller(db: Session = Depends(get_db)):
 def _ensure_demo_image() -> str:
     """Download demo image once into /app/media and return its local URL."""
     import requests as _req
-    local_path = "/app/media/garment-demo-001.jpg"
+    media_dir = os.getenv("MEDIA_DIR", "/app/media")
+    local_path = os.path.join(media_dir, "garment-demo-001.jpg")
     if not os.path.exists(local_path):
         try:
             r = _req.get(

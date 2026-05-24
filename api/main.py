@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.routers import dev, sellers, tryon
 
-MEDIA_DIR = "/app/media"
+MEDIA_DIR = os.getenv("MEDIA_DIR", "/app/media")
 os.makedirs(MEDIA_DIR, exist_ok=True)
 
 app = FastAPI(title="Zury API")

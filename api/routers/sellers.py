@@ -12,7 +12,7 @@ from api.database import get_db
 from api.models.garment import Garment
 from api.models.seller import Seller
 
-MEDIA_DIR = "/app/media"
+MEDIA_DIR = os.getenv("MEDIA_DIR", "/app/media")
 
 router = APIRouter(prefix="/api/v1/sellers", tags=["sellers"])
 

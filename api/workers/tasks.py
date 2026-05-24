@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw
 BROKER_URL     = os.getenv("CELERY_BROKER_URL",    "redis://localhost:6379/0")
 RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
 
-MEDIA_DIR = "/app/media"
+MEDIA_DIR = os.getenv("MEDIA_DIR", "/app/media")
 
 celery_app = Celery("zury", broker=BROKER_URL, backend=RESULT_BACKEND)
 os.makedirs(MEDIA_DIR, exist_ok=True)

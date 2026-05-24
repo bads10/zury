@@ -11,7 +11,7 @@ from api.workers.tasks import generate_tryon
 
 router = APIRouter(prefix="/api/v1/tryon", tags=["tryon"])
 
-UPLOAD_DIR = "/app/uploads"
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
