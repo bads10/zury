@@ -167,6 +167,60 @@ def test_tryon_unknown_job_returns_404(client):
     assert client.get("/api/v1/tryon/does-not-exist").status_code == 404
 
 
+def test_tryon_records_consent_and_model(client, registered_seller):
+    import api.database as db_mod
+    from api.models.job import Job
+
+    r = client.post(
+        "/api/v1/tryon",
+        files={"selfie": ("s.png", _png_bytes(), "image/png")},
+        data={
+            "garment_id": "any-garment",
+            "seller_id": registered_seller["seller"]["id"],
+            "fitzpatrick": "5",
+            "consent": "true",
+        },
+    )
+    assert r.status_code == 202, r.text
+    job_id = r.json()["job_id"]
+
+    db = db_mod.SessionLocal()
+    try:
+        job = db.get(Job, job_id)
+        assert job.consent is True
+        # Sans REPLICATE_API_TOKEN, la branche placeholder tague le modèle.
+        assert job.model == "placeholder"
+    finally:
+        db.close()
+
+    # Le polling expose le champ error (None quand tout va bien).
+    body = client.get(f"/api/v1/tryon/{job_id}").json()
+    assert body["error"] is None
+
+
+def test_tryon_consent_defaults_to_false(client, registered_seller):
+    import api.database as db_mod
+    from api.models.job import Job
+
+    r = client.post(
+        "/api/v1/tryon",
+        files={"selfie": ("s.png", _png_bytes(), "image/png")},
+        data={
+            "garment_id": "any-garment",
+            "seller_id": registered_seller["seller"]["id"],
+            "fitzpatrick": "4",
+        },
+    )
+    assert r.status_code == 202, r.text
+
+    db = db_mod.SessionLocal()
+    try:
+        job = db.get(Job, r.json()["job_id"])
+        assert job.consent is False
+    finally:
+        db.close()
+
+
 def test_tryon_rejects_invalid_fitzpatrick(client, registered_seller):
     r = client.post(
         "/api/v1/tryon",

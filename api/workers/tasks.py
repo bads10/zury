@@ -17,6 +17,48 @@ celery_app = Celery("zury", broker=BROKER_URL, backend=RESULT_BACKEND)
 os.makedirs(MEDIA_DIR, exist_ok=True)
 
 
+# ── Modèles try-on disponibles ────────────────────────────────────────────────
+# Sélection via TRYON_MODEL (env). Chaque entrée : ref Replicate + builder
+# d'inputs, car les schémas d'entrée diffèrent d'un modèle à l'autre.
+
+def _idm_vton_input(human_buf: io.BytesIO, garm_buf: io.BytesIO, garment_des: str) -> dict:
+    return {
+        "human_img":   human_buf,
+        "garm_img":    garm_buf,
+        "garment_des": garment_des,
+        "crop":        False,
+        "steps":       30,
+        "seed":        42,
+    }
+
+
+def _nano_banana_input(human_buf: io.BytesIO, garm_buf: io.BytesIO, garment_des: str) -> dict:
+    return {
+        "prompt": (
+            "Make the person in the first image wear the garment from the second image. "
+            "Keep the person's face, body shape, skin tone and pose exactly as they are. "
+            "Reproduce the garment's pattern, colors, trim and texture faithfully — do not "
+            f"reinterpret or simplify the print. Photorealistic. Garment: {garment_des}"
+        ),
+        "image_input":   [human_buf, garm_buf],
+        "output_format": "png",
+    }
+
+
+TRYON_MODELS = {
+    "idm-vton": {
+        "ref":   "cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
+        "input": _idm_vton_input,
+    },
+    "nano-banana": {
+        "ref":   "google/nano-banana",
+        "input": _nano_banana_input,
+    },
+}
+
+TRYON_MODEL = os.getenv("TRYON_MODEL", "idm-vton")
+
+
 # ── DB helper ─────────────────────────────────────────────────────────────────
 
 def _update_job(job_id: str, **fields) -> None:
@@ -86,6 +128,17 @@ def generate_tryon(job_id: str, selfie_path: str, garment_id: str, fitzpatrick: 
     if not os.getenv("REPLICATE_API_TOKEN"):
         return _placeholder(job_id, garment_id, fitzpatrick)
 
+    model_key = TRYON_MODEL
+    model = TRYON_MODELS.get(model_key)
+    if model is None:
+        _update_job(
+            job_id, status=JobStatus.failed, progress=0,
+            error=f"TRYON_MODEL inconnu : {model_key!r} (disponibles : {sorted(TRYON_MODELS)})",
+        )
+        raise ValueError(f"Unknown TRYON_MODEL {model_key!r}")
+
+    _update_job(job_id, model=model_key)
+
     try:
         # Upload images as file objects — replicate SDK auto-uploads to its
         # file storage so Replicate's inference servers can fetch them.
@@ -93,17 +146,7 @@ def generate_tryon(job_id: str, selfie_path: str, garment_id: str, fitzpatrick: 
         garm_buf, garment_des  = _garment_data(garment_id)
         _update_job(job_id, progress=20)
 
-        output = replicate.run(
-            "cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
-            input={
-                "human_img":   human_buf,
-                "garm_img":    garm_buf,
-                "garment_des": garment_des,
-                "crop":        False,
-                "steps":       30,
-                "seed":        42,
-            },
-        )
+        output = replicate.run(model["ref"], input=model["input"](human_buf, garm_buf, garment_des))
         _update_job(job_id, progress=95)
 
         # output is a list of FileOutput objects or plain URL strings
@@ -121,8 +164,8 @@ def generate_tryon(job_id: str, selfie_path: str, garment_id: str, fitzpatrick: 
         _update_job(job_id, status=JobStatus.done, progress=100, result_url=result_url)
         return {"result_url": result_url, "job_id": job_id}
 
-    except Exception:
-        _update_job(job_id, status=JobStatus.failed, progress=0)
+    except Exception as exc:
+        _update_job(job_id, status=JobStatus.failed, progress=0, error=str(exc)[:500])
         raise
 
 
@@ -131,6 +174,7 @@ def generate_tryon(job_id: str, selfie_path: str, garment_id: str, fitzpatrick: 
 def _placeholder(job_id: str, garment_id: str, fitzpatrick: int) -> dict:
     from api.models.job import JobStatus
 
+    _update_job(job_id, model="placeholder")
     time.sleep(2)
     _update_job(job_id, progress=50)
     time.sleep(2)

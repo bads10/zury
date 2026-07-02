@@ -1,6 +1,6 @@
 import {
   fetchGarment, compressImage, requestTryOn, pollResult, shareViaWhatsApp, API_BASE
-} from './api.js?v=5';
+} from './api.js?v=6';
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -12,6 +12,8 @@ const state = {
   garment:     null,
   selfie:      null,   // File (original, before compression)
   fitzpatrick: 3,
+  fitzTouched: false,  // true si l'utilisateur a choisi un swatch manuellement
+  consent:     false,  // consentement usage photos pour améliorer le service
   jobId:       null,
   resultUrl:   null,
   pollAbort:   null,   // AbortController
@@ -113,6 +115,7 @@ function setPreview(file) {
   $('upload-zone').hidden  = true;
   $('preview-wrap').hidden = false;
   $('skin-select').hidden  = false;
+  $('consent-wrap').hidden = false;
   $('submit-wrap').hidden  = false;
 }
 
@@ -127,6 +130,7 @@ function clearCapture() {
   $('upload-zone').hidden  = false;
   $('preview-wrap').hidden = true;
   $('skin-select').hidden  = true;
+  $('consent-wrap').hidden = true;
   $('submit-wrap').hidden  = true;
 }
 
@@ -146,7 +150,13 @@ document.querySelectorAll('.swatch').forEach(btn => {
     btn.classList.add('active');
     btn.setAttribute('aria-checked', 'true');
     state.fitzpatrick = Number(btn.dataset.fitz);
+    state.fitzTouched = true;
   });
+});
+
+// ── Capture — consentement ────────────────────────────────────────────────────
+$('consent-checkbox').addEventListener('change', e => {
+  state.consent = e.target.checked;
 });
 
 // ── Capture — submit ──────────────────────────────────────────────────────────
@@ -174,7 +184,9 @@ async function startTryOn(selfieDataUrl) {
       selfieDataUrl,
       garmentId:   state.garmentId,
       sellerId:    state.garment.seller_id,
-      fitzpatrick: state.fitzpatrick,
+      // Choix manuel prime ; sinon undefined → auto-détection dans api.js
+      fitzpatrick: state.fitzTouched ? state.fitzpatrick : undefined,
+      consent:     state.consent,
     });
     state.jobId     = job_id;
     state.pollAbort = new AbortController();

@@ -98,15 +98,17 @@ export function detectFitzpatrick(imageDataUrl) {
 }
 
 // ─── Upload + lancement try-on ─────────────────────────────────────
-export async function requestTryOn({ selfieDataUrl, garmentId, sellerId }) {
-  const fitzpatrick = await detectFitzpatrick(selfieDataUrl);
+export async function requestTryOn({ selfieDataUrl, garmentId, sellerId, fitzpatrick, consent }) {
+  // Le choix manuel (swatch) prime ; auto-détection seulement en absence
+  const fitz = fitzpatrick ?? await detectFitzpatrick(selfieDataUrl);
 
   const blob = dataUrlToBlob(selfieDataUrl);
   const form = new FormData();
   form.append('selfie',      blob, 'selfie.jpg');
   form.append('garment_id',  garmentId);
   form.append('seller_id',   sellerId);
-  form.append('fitzpatrick', fitzpatrick);
+  form.append('fitzpatrick', fitz);
+  form.append('consent',     consent ? 'true' : 'false');
   form.append('client_ts',   Date.now());
 
   const data = await fetchWithRetry(`${API_BASE}/api/v1/tryon`, { method: 'POST', body: form });

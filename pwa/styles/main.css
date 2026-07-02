@@ -401,6 +401,30 @@ input  { font-family: inherit; }
   transform: scale(1.12);
 }
 
+/* Consentement données */
+.consent-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 0 8px;
+}
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 340px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+  cursor: pointer;
+}
+.consent-label input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  margin-top: 1px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
 .submit-wrap { padding-top: 2px; }
 
 /* ─────────────────────────────────────────────────────────────────────────────

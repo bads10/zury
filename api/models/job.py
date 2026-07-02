@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Enum as SAEnum, Integer, String
+from sqlalchemy import Boolean, DateTime, Enum as SAEnum, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from api.database import Base
@@ -32,5 +32,10 @@ class Job(Base):
     progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     result_url: Mapped[str | None] = mapped_column(String, nullable=True)
     estimated_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    # Métadonnées dataset : quel modèle a généré le résultat, consentement
+    # utilisateur pour usage entraînement, message d'erreur en cas d'échec.
+    model: Mapped[str | None] = mapped_column(String, nullable=True)
+    consent: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
