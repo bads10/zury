@@ -21,6 +21,7 @@ async def create_tryon(
     garment_id: str = Form(...),
     seller_id: str = Form(...),
     fitzpatrick: int = Form(..., ge=1, le=6),
+    consent: bool = Form(False),
     db: Session = Depends(get_db),
 ):
     ext = os.path.splitext(selfie.filename or "selfie.jpg")[1] or ".jpg"
@@ -34,6 +35,7 @@ async def create_tryon(
         fitzpatrick=fitzpatrick,
         selfie_path=selfie_path,
         estimated_seconds=10,
+        consent=consent,
     )
     db.add(job)
     db.commit()
@@ -56,4 +58,5 @@ def get_tryon(job_id: str, db: Session = Depends(get_db)):
         "status": job.status,
         "progress": job.progress,
         "result_url": job.result_url,
+        "error": job.error,
     }
