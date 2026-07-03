@@ -56,7 +56,34 @@ TRYON_MODELS = {
     },
 }
 
-TRYON_MODEL = os.getenv("TRYON_MODEL", "idm-vton")
+TRYON_MODEL = os.getenv("TRYON_MODEL", "nano-banana")
+
+# nano-banana échoue parfois de façon stochastique : renvoie le selfie inchangé
+# (no-op) ou compose un diptyque au lieu d'éditer. Seuils calibrés sur l'éval
+# du 2026-07-03 : no-op diff ≤ 7,6 vs ≥ 9,5 pour les vrais résultats ;
+# diptyque ratio 1,76 vs ≤ 1,21 pour les vrais résultats.
+NOOP_DIFF_THRESHOLD = 8.5
+DIPTYCH_AR_THRESHOLD = 1.45
+MAX_GENERATION_TRIES = 2
+
+
+def _detect_anomaly(result_bytes: bytes, selfie_path: str) -> str | None:
+    """Retourne "no-op", "diptyque" ou None si le résultat semble valide."""
+    res = Image.open(io.BytesIO(result_bytes)).convert("L")
+    ref = Image.open(selfie_path).convert("L")
+
+    ar_ratio = (res.width / res.height) / (ref.width / ref.height)
+    if ar_ratio > DIPTYCH_AR_THRESHOLD:
+        return "diptyque"
+
+    a = list(res.resize((64, 64)).getdata())
+    b = list(ref.resize((64, 64)).getdata())
+    mean_a, mean_b = sum(a) / len(a), sum(b) / len(b)
+    # diff moyenne recentrée : insensible à un simple décalage de luminosité
+    diff = sum(abs((x - mean_a) - (y - mean_b)) for x, y in zip(a, b)) / len(a)
+    if diff < NOOP_DIFF_THRESHOLD:
+        return "no-op"
+    return None
 
 
 # ── DB helper ─────────────────────────────────────────────────────────────────
@@ -140,25 +167,51 @@ def generate_tryon(job_id: str, selfie_path: str, garment_id: str, fitzpatrick: 
     _update_job(job_id, model=model_key)
 
     try:
-        # Upload images as file objects — replicate SDK auto-uploads to its
-        # file storage so Replicate's inference servers can fetch them.
-        human_buf              = _file_to_bytesio(selfie_path)
-        garm_buf, garment_des  = _garment_data(garment_id)
-        _update_job(job_id, progress=20)
+        garm_bytes, garment_des = None, None
+        anomaly = None
+        content = b""
 
-        output = replicate.run(model["ref"], input=model["input"](human_buf, garm_buf, garment_des))
+        for attempt in range(1, MAX_GENERATION_TRIES + 1):
+            # Upload images as file objects — replicate SDK auto-uploads to its
+            # file storage so Replicate's inference servers can fetch them.
+            # Buffers reconstruits à chaque tentative (consommés par l'upload).
+            human_buf = _file_to_bytesio(selfie_path)
+            if garm_bytes is None:
+                garm_buf, garment_des = _garment_data(garment_id)
+                garm_bytes, garm_name = garm_buf.getvalue(), garm_buf.name
+            else:
+                garm_buf = io.BytesIO(garm_bytes)
+                garm_buf.name = garm_name
+            _update_job(job_id, progress=20)
+
+            output = replicate.run(model["ref"], input=model["input"](human_buf, garm_buf, garment_des))
+            _update_job(job_id, progress=80)
+
+            # output is a list of FileOutput objects or plain URL strings
+            output_item = output[0] if isinstance(output, list) else output
+            url_str = getattr(output_item, "url", str(output_item))
+
+            r = httpx.get(url_str, follow_redirects=True, timeout=60)
+            r.raise_for_status()
+            content = r.content
+
+            anomaly = _detect_anomaly(content, selfie_path)
+            if anomaly is None:
+                break
+
+        if anomaly is not None:
+            _update_job(
+                job_id, status=JobStatus.failed, progress=0,
+                error=f"résultat invalide ({anomaly}) après {MAX_GENERATION_TRIES} tentatives",
+            )
+            raise ValueError(
+                f"résultat invalide ({anomaly}) après {MAX_GENERATION_TRIES} tentatives"
+            )
+
         _update_job(job_id, progress=95)
-
-        # output is a list of FileOutput objects or plain URL strings
-        output_item = output[0] if isinstance(output, list) else output
-        url_str = getattr(output_item, "url", str(output_item))
-
-        r = httpx.get(url_str, follow_redirects=True, timeout=60)
-        r.raise_for_status()
-
         out_path = os.path.join(MEDIA_DIR, f"{job_id}_result.png")
         with open(out_path, "wb") as f:
-            f.write(r.content)
+            f.write(content)
 
         result_url = f"/api/v1/media/{job_id}_result.png"
         _update_job(job_id, status=JobStatus.done, progress=100, result_url=result_url)
