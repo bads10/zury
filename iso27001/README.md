@@ -1,16 +1,24 @@
 # Quiz ISO/IEC 27001 Lead Implementer — diapositives interactives
 
-Deux pages HTML autonomes générées depuis la fiche des quiz et le corrigé
-de la formation *Certified ISO/IEC 27001 Lead Implementer* (V10.0 FR).
+**`quiz-iso27001.html`** — un seul fichier, les 164 questions des 27 quiz de la
+formation *Certified ISO/IEC 27001 Lead Implementer* (V10.0 FR), une question
+par diapositive.
 
-| Fichier | Contenu |
-| --- | --- |
-| `quiz-iso27001-questions.html` | Les 164 questions, une par diapositive. On répond, le verdict s'affiche aussitôt : **bonne réponse en vert, mauvaise en rouge**. Score suivi quiz par quiz, synthèse finale. |
-| `quiz-iso27001-corrige.html` | Les mêmes 164 questions avec la **bonne réponse en vert**, les **mauvaises en rouge**, et l'explication du corrigé sur chaque diapositive. |
-
-Chaque fichier est entièrement autonome : CSS et JS intégrés, aucune ressource
+Le fichier est entièrement autonome : CSS et JS intégrés, aucune ressource
 externe, aucun réseau requis. Il suffit de l'ouvrir dans un navigateur ou de
 l'envoyer par e-mail.
+
+## Deux modes, commutables depuis la page
+
+| Mode | Comportement |
+| --- | --- |
+| **Entraînement** | Vous répondez. Le verdict s'affiche aussitôt — **bonne réponse en vert, mauvaise en rouge** — puis l'explication du corrigé se dévoile. Score suivi quiz par quiz, synthèse finale. |
+| **Corrigé** | Tout est révélé d'emblée : **bonne réponse en vert, mauvaises en rouge**, avec l'explication sur chaque diapositive. |
+
+Le sélecteur est dans la barre haute (ou touche <kbd>M</kbd>). La bascule
+conserve la question courante : on peut vérifier un point dans le corrigé puis
+revenir exactement là où on en était. Les réponses déjà données restent
+marquées dans les deux modes.
 
 ## Contenu couvert
 
@@ -24,11 +32,14 @@ l'envoyer par e-mail.
 - <kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> (ou <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>) — répondre
 - <kbd>←</kbd> <kbd>→</kbd>, <kbd>Espace</kbd>, <kbd>Page↑</kbd> <kbd>Page↓</kbd> — naviguer
 - <kbd>Début</kbd> / <kbd>Fin</kbd> — première question / synthèse
-- <kbd>S</kbd> — sommaire des 27 quiz, <kbd>Échap</kbd> pour le fermer
+- <kbd>M</kbd> — changer de mode, <kbd>S</kbd> — sommaire des 27 quiz, <kbd>Échap</kbd> — fermer
 
-La progression et les réponses sont conservées dans le navigateur : on peut
-fermer la page et reprendre où l'on s'était arrêté. Le bouton « Recommencer »
-efface tout.
+Le mode, la progression et les réponses sont conservés dans le navigateur : on
+peut fermer la page et reprendre où l'on s'était arrêté. Le bouton
+« Recommencer » efface tout.
+
+Thèmes clair et sombre selon le réglage du système. Mise en page vérifiée de
+320 px à 1440 px.
 
 ## Régénérer
 
@@ -39,7 +50,7 @@ python3 extract_docx.py \
   06_27001LI_Quizzes_Correction_Key_V10.0_FR.DOCX \
   -o data/quiz.json
 
-# 2. assembler les deux pages HTML
+# 2. assembler la page HTML
 python3 build.py
 ```
 
@@ -50,15 +61,17 @@ options, la réponse correcte et l'explication. Les deux documents sont ensuite
 alignés position par position ; toute divergence de structure interrompt
 l'extraction plutôt que de produire un corrigé décalé.
 
+Trois questions (40, 55, 81) sont formulées différemment dans la fiche et dans
+le corrigé — même question, autre tournure. `data/quiz.json` conserve les deux
+versions (`question` / `questionKey`) ; la page affiche celle de la fiche.
+
 ## Organisation
 
 ```
-extract_docx.py    extraction .docx -> JSON
-build.py           JSON + assets -> les deux pages HTML
-data/quiz.json     les 164 questions (énoncé, options, bonne réponse, explication)
-assets/deck.css    feuille de style commune (thèmes clair et sombre)
-assets/deck.js     moteur de diapositives commun aux deux modes
+extract_docx.py     extraction .docx -> JSON
+build.py            JSON + assets -> quiz-iso27001.html
+data/quiz.json      les 164 questions (énoncé, options, bonne réponse, explication)
+assets/deck.css     feuille de style (thèmes clair et sombre)
+assets/deck.js      moteur de diapositives et bascule de mode
+quiz-iso27001.html  le livrable, autonome
 ```
-
-Les deux pages partagent le même CSS et le même JS ; c'est la variable `MODE`
-injectée à la construction qui décide du comportement (`quiz` ou `corrige`).

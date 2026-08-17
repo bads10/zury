@@ -1,24 +1,26 @@
 /* ==========================================================================
    Quiz ISO/IEC 27001 LI — moteur de diapositives
-   Deux modes, un seul moteur :
-     MODE === "quiz"    -> l'utilisateur repond, verdict vert / rouge au clic
-     MODE === "corrige" -> bonne reponse en vert, mauvaises en rouge, explication
-   Les donnees (QUESTIONS) et MODE sont injectees avant ce script.
+   Un seul fichier, deux modes commutables a chaud :
+     « entrainement » -> on repond, verdict vert / rouge, puis l'explication
+     « corrige »      -> bonne reponse en vert, mauvaises en rouge, explication
+   Les donnees (QUESTIONS) sont injectees avant ce script.
    ========================================================================== */
 (function () {
   'use strict';
 
   var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
-  var isQuiz = MODE === 'quiz';
-  var STORE = 'iso27001-' + MODE + '-v1';
+  var STORE = 'iso27001-quiz-v2';
+  var TRAINING = 'entrainement';
+  var KEY = 'corrige';
   var total = QUESTIONS.length;
 
   /* --- etat ------------------------------------------------------------- */
-  var state = { pos: 0, answers: {} };
+  var state = { pos: 0, answers: {}, mode: TRAINING };
 
   try {
     var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
     if (saved && typeof saved === 'object') {
+      if (saved.mode === KEY || saved.mode === TRAINING) state.mode = saved.mode;
       if (typeof saved.pos === 'number') state.pos = Math.min(Math.max(saved.pos, 0), total);
       if (saved.answers && typeof saved.answers === 'object') state.answers = saved.answers;
     }
@@ -27,6 +29,12 @@
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
   }
+
+  function isTraining() { return state.mode === TRAINING; }
+
+  /* La synthese n'existe qu'en entrainement : elle occupe la position
+     total, juste apres la derniere question. */
+  function maxPos() { return isTraining() ? total : total - 1; }
 
   /* --- index des quiz --------------------------------------------------- */
   var quizzes = [];
@@ -49,8 +57,11 @@
   var ticksStrip = $('#ticksStrip');
   var sheet = $('#sheet');
   var sheetGrid = $('#sheetGrid');
+  var keyhint = $('#keyhint');
   var btnPrev = $('#btnPrev');
   var btnNext = $('#btnNext');
+  var btnReset = $('#btnReset');
+  var modeBtns = [].slice.call(document.querySelectorAll('[data-mode]'));
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -86,9 +97,21 @@
     return { ok: ok, bad: bad, done: ok + bad, total: quiz.items.length };
   }
 
+  /* --- bloc explication ------------------------------------------------- */
+  function explainBlock(q) {
+    var box = el('div', 'explain');
+    box.appendChild(el('div', 'explain__label', 'Explication'));
+    box.appendChild(el('p', null, q.explanation));
+    return box;
+  }
+
   /* --- rendu d'une diapositive question --------------------------------- */
   function renderQuestion(index) {
     var q = QUESTIONS[index];
+    var training = isTraining();
+    var pick = state.answers[index];
+    var revealed = !training || pick != null;
+
     var slide = el('div', 'slide');
     slide.setAttribute('role', 'group');
     slide.setAttribute('aria-label', 'Question ' + q.n + ' sur ' + total);
@@ -112,9 +135,8 @@
 
       var det = el('details', 'scenario');
       det.open = isFirst;
-      var sum = el('summary', null, 'Scénario ' + q.scenario + ' — contexte'
-        + (isFirst ? '' : ' (replié)'));
-      det.appendChild(sum);
+      det.appendChild(el('summary', null, 'Scénario ' + q.scenario + ' — contexte'
+        + (isFirst ? '' : ' (replié)')));
 
       var body = el('div', 'scenario__body');
       var prose = el('div', 'scenario__prose');
@@ -140,14 +162,11 @@
     /* enonce */
     var qBlock = el('div', 'question');
     qBlock.appendChild(el('div', 'question__index mono', pad(q.n, 3)));
-    qBlock.appendChild(el('h1', 'question__text', isQuiz ? q.question : q.questionKey));
+    qBlock.appendChild(el('h1', 'question__text', q.question));
     slide.appendChild(qBlock);
 
-    /* verdict (mode quiz, apres reponse) */
-    var pick = state.answers[index];
-    var revealed = !isQuiz || pick != null;
-
-    if (isQuiz && pick != null) {
+    /* verdict immediat (entrainement, apres reponse) */
+    if (training && pick != null) {
       var good = pick === q.correct;
       var bar = el('div', 'verdictbar');
       bar.setAttribute('data-verdict', good ? 'ok' : 'bad');
@@ -160,9 +179,8 @@
     }
 
     /* options */
-    var opts = isQuiz ? q.options : q.optionsKey;
     var list = el('ul', 'options');
-    opts.forEach(function (text, i) {
+    q.options.forEach(function (text, i) {
       var li = el('li');
       var btn = el('button', 'option');
       btn.type = 'button';
@@ -178,12 +196,12 @@
         btn.disabled = true;
         if (good) {
           verdict.textContent = '✓ Bonne réponse';
-        } else if (isQuiz && pick === i) {
+        } else if (training && pick === i) {
           verdict.textContent = '✗ Votre réponse';
         } else {
           verdict.textContent = '✗ Mauvaise réponse';
         }
-        if (isQuiz && pick === i) btn.setAttribute('data-picked', 'true');
+        if (training && pick === i) btn.setAttribute('data-picked', 'true');
       } else {
         btn.addEventListener('click', function () { answer(index, i); });
       }
@@ -193,12 +211,13 @@
     });
     slide.appendChild(list);
 
-    /* explication (corrige uniquement) */
-    if (!isQuiz && q.explanation) {
-      var box = el('div', 'explain');
-      box.appendChild(el('div', 'explain__label', 'Explication'));
-      box.appendChild(el('p', null, q.explanation));
-      slide.appendChild(box);
+    /* explication : d'emblee en corrige, apres la reponse en entrainement */
+    if (revealed && q.explanation) slide.appendChild(explainBlock(q));
+
+    /* invitation a repondre, tant que rien n'est coche */
+    if (!revealed) {
+      var hint = el('p', 'prompt', 'Choisissez une réponse pour voir le verdict et l’explication.');
+      slide.appendChild(hint);
     }
 
     return slide;
@@ -216,6 +235,7 @@
     eyebrow.appendChild(el('span', 'chip chip--quiz', 'Synthèse'));
     eyebrow.appendChild(el('span', 'slide__topic', total + ' questions · 27 quiz'));
     wrap.appendChild(eyebrow);
+
     wrap.appendChild(el('h1', 'wrap__title', 'Résultats des 27 quiz'));
     wrap.appendChild(el('p', 'wrap__lede', done === total
       ? 'Vous avez répondu à l’ensemble des ' + total + ' questions. Le détail par quiz indique où concentrer vos révisions avant l’examen.'
@@ -223,10 +243,10 @@
 
     var metrics = el('div', 'metrics');
     [
-      ['metric metric--accent', pct + ' %', 'Taux de réussite'],
+      ['metric metric--accent', pct + ' %', 'Taux de réussite'],
       ['metric metric--ok', String(ok), 'Bonnes réponses'],
       ['metric metric--bad', String(bad), 'Mauvaises réponses'],
-      ['metric', done + ' / ' + total, 'Questions traitées']
+      ['metric', done + ' / ' + total, 'Questions traitées']
     ].forEach(function (m) {
       var card = el('div', m[0]);
       card.appendChild(el('div', 'metric__value mono', m[1]));
@@ -250,8 +270,15 @@
       var s = quizStats(quiz);
       var tr = el('tr');
       tr.appendChild(el('td', 'num', pad(quiz.n, 2)));
-      tr.appendChild(el('td', 'title', quiz.title));
-      tr.appendChild(el('td', 'num', s.done + ' / ' + s.total));
+
+      var tdTitle = el('td', 'title');
+      var link = el('button', 'linkbtn', quiz.title);
+      link.type = 'button';
+      link.addEventListener('click', function () { go(quiz.items[0]); });
+      tdTitle.appendChild(link);
+      tr.appendChild(tdTitle);
+
+      tr.appendChild(el('td', 'num', s.done + ' / ' + s.total));
 
       var tdOk = el('td', 'num');
       tdOk.appendChild(el('span', s.ok ? 'ok' : null, String(s.ok)));
@@ -261,7 +288,7 @@
       tdBad.appendChild(el('span', s.bad ? 'bad' : null, String(s.bad)));
       tr.appendChild(tdBad);
 
-      tr.appendChild(el('td', 'num', s.done ? Math.round((s.ok / s.done) * 100) + ' %' : '—'));
+      tr.appendChild(el('td', 'num', s.done ? Math.round((s.ok / s.done) * 100) + ' %' : '—'));
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
@@ -269,24 +296,51 @@
     wrap.appendChild(tw);
 
     var actions = el('div', 'wrap__actions');
+
     var again = el('button', 'navbtn navbtn--primary', 'Recommencer');
     again.type = 'button';
     again.addEventListener('click', reset);
     actions.appendChild(again);
 
-    var back = el('button', 'navbtn', 'Revoir les questions');
-    back.type = 'button';
-    back.addEventListener('click', function () { go(0); });
-    actions.appendChild(back);
-    wrap.appendChild(actions);
+    var review = el('button', 'navbtn', 'Passer au corrigé complet');
+    review.type = 'button';
+    review.addEventListener('click', function () { setMode(KEY, 0); });
+    actions.appendChild(review);
 
+    /* raccourci vers les questions manquees */
+    var missed = Object.keys(state.answers).filter(function (k) {
+      return state.answers[k] !== QUESTIONS[+k].correct;
+    }).map(Number).sort(function (a, b) { return a - b; });
+
+    if (missed.length) {
+      var toMissed = el('button', 'navbtn',
+        'Revoir la 1re erreur (question ' + pad(QUESTIONS[missed[0]].n, 3) + ')');
+      toMissed.type = 'button';
+      toMissed.addEventListener('click', function () { go(missed[0]); });
+      actions.appendChild(toMissed);
+    }
+
+    wrap.appendChild(actions);
     return wrap;
   }
 
   /* --- appareillage : compteurs, jauge, releve -------------------------- */
+  var HINT_TRAINING = '<span><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd> répondre</span>'
+    + '<span><kbd>&#8592;</kbd><kbd>&#8594;</kbd> naviguer</span>'
+    + '<span><kbd>M</kbd> mode</span><span><kbd>S</kbd> sommaire</span>';
+  var HINT_KEY = '<span><kbd>&#8592;</kbd><kbd>&#8594;</kbd> naviguer</span>'
+    + '<span><kbd>M</kbd> revenir à l’entraînement</span><span><kbd>S</kbd> sommaire</span>';
+
   function renderChrome() {
-    var onReport = state.pos >= total;
+    var training = isTraining();
+    var onReport = training && state.pos >= total;
     var q = onReport ? null : QUESTIONS[state.pos];
+
+    modeBtns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
+    });
+
+    keyhint.innerHTML = training ? HINT_TRAINING : HINT_KEY;
 
     counter.innerHTML = '';
     if (onReport) {
@@ -296,11 +350,12 @@
       counter.appendChild(document.createTextNode(' / ' + total));
     }
 
-    if (scoreEl) {
+    scoreEl.hidden = !training;
+    btnReset.hidden = !training;
+    if (training) {
       scoreEl.innerHTML = '';
-      var done = answered();
       scoreEl.appendChild(el('b', null, String(correctCount())));
-      scoreEl.appendChild(document.createTextNode(' justes / ' + done + ' traitées'));
+      scoreEl.appendChild(document.createTextNode(' justes / ' + answered() + ' traitées'));
     }
 
     var shown = onReport ? total : state.pos;
@@ -315,18 +370,18 @@
     var quiz = byQuiz[q.quiz];
     var s = quizStats(quiz);
     ticksLabel.textContent = 'Quiz ' + pad(quiz.n, 2) + ' · ' +
-      (isQuiz ? s.done + '/' + s.total + ' traitées' : s.total + ' questions');
+      (training ? s.done + '/' + s.total + ' traitées' : s.total + ' questions');
 
     quiz.items.forEach(function (i) {
       var t = el('button', 'tick');
       t.type = 'button';
       var label = 'Question ' + QUESTIONS[i].n;
       var pick = state.answers[i];
-      if (isQuiz && pick != null) {
+      if (pick != null) {
         var good = pick === QUESTIONS[i].correct;
         t.setAttribute('data-state', good ? 'ok' : 'bad');
         label += good ? ' — juste' : ' — fausse';
-      } else if (!isQuiz && i < state.pos) {
+      } else if (!training && i < state.pos) {
         t.setAttribute('data-state', 'seen');
       }
       if (i === state.pos) t.setAttribute('aria-current', 'true');
@@ -340,17 +395,18 @@
   /* --- navigation ------------------------------------------------------- */
   function render() {
     stage.innerHTML = '';
-    stage.appendChild(state.pos >= total ? renderReport() : renderQuestion(state.pos));
+    stage.appendChild(isTraining() && state.pos >= total
+      ? renderReport()
+      : renderQuestion(state.pos));
     stage.scrollTop = 0;
     renderChrome();
     btnPrev.disabled = state.pos === 0;
-    btnNext.disabled = state.pos >= (isQuiz ? total : total - 1);
+    btnNext.disabled = state.pos >= maxPos();
     save();
   }
 
   function go(pos) {
-    var max = isQuiz ? total : total - 1;
-    state.pos = Math.min(Math.max(pos, 0), max);
+    state.pos = Math.min(Math.max(pos, 0), maxPos());
     closeSheet();
     render();
   }
@@ -361,10 +417,28 @@
     render();
   }
 
+  /* Bascule de mode. La position est conservee : on reste sur la meme
+     question en passant de l'entrainement au corrige et inversement. */
+  function setMode(mode, pos) {
+    if (mode !== TRAINING && mode !== KEY) return;
+    var wasOnReport = isTraining() && state.pos >= total;
+    state.mode = mode;
+    if (pos != null) state.pos = pos;
+    /* depuis la synthese, le corrige reprend au debut plutot que de retomber
+       sur la derniere question par simple recadrage */
+    else if (wasOnReport && mode === KEY) state.pos = 0;
+    state.pos = Math.min(Math.max(state.pos, 0), maxPos());
+    closeSheet();
+    render();
+  }
+
+  function toggleMode() { setMode(isTraining() ? KEY : TRAINING); }
+
   function reset() {
     if (!window.confirm('Effacer toutes vos réponses et repartir de la question 1 ?')) return;
     state.answers = {};
     state.pos = 0;
+    state.mode = TRAINING;
     save();
     render();
   }
@@ -384,7 +458,7 @@
       var meta = el('span', 'quizcard__meta');
       var s = quizStats(quiz);
       meta.appendChild(document.createTextNode(quiz.items.length + ' questions'));
-      if (isQuiz && s.done) {
+      if (s.done) {
         meta.appendChild(document.createTextNode(' · '));
         meta.appendChild(el('span', 'ok', s.ok + ' justes'));
         meta.appendChild(document.createTextNode(' · '));
@@ -413,12 +487,14 @@
   /* --- branchements ----------------------------------------------------- */
   btnPrev.addEventListener('click', function () { go(state.pos - 1); });
   btnNext.addEventListener('click', function () { go(state.pos + 1); });
+  btnReset.addEventListener('click', reset);
   $('#btnIndex').addEventListener('click', toggleSheet);
   $('#sheetClose').addEventListener('click', closeSheet);
   sheet.addEventListener('click', function (ev) { if (ev.target === sheet) closeSheet(); });
 
-  var btnReset = $('#btnReset');
-  if (btnReset) btnReset.addEventListener('click', reset);
+  modeBtns.forEach(function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.mode); });
+  });
 
   document.addEventListener('keydown', function (ev) {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
@@ -445,13 +521,14 @@
       case 'Home':
         go(0); ev.preventDefault(); return;
       case 'End':
-        go(isQuiz ? total : total - 1); ev.preventDefault(); return;
+        go(maxPos()); ev.preventDefault(); return;
     }
 
     var k = ev.key.toLowerCase();
     if (k === 's') { toggleSheet(); ev.preventDefault(); return; }
+    if (k === 'm') { toggleMode(); ev.preventDefault(); return; }
 
-    if (isQuiz && state.pos < total && state.answers[state.pos] == null) {
+    if (isTraining() && state.pos < total && state.answers[state.pos] == null) {
       var q = QUESTIONS[state.pos];
       var idx = -1;
       if (ev.key >= '1' && ev.key <= '9') idx = +ev.key - 1;
