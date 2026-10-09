@@ -1,0 +1,1619 @@
+<title>Scénarios ISO 27001 ciblés</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="6 scénarios et 45 questions au format de l’examen PECB ISO/IEC 27001 Lead Implementer, ciblés sur les domaines obtenus sous 70 %, avec comparaison domaine par domaine au résultat d’examen.">
+<style>
+/* ==========================================================================
+   Quiz ISO/IEC 27001 LI — feuille de style commune (questions + corrige)
+   Identite : specification technique. Neutres ardoise froide, accent
+   sarcelle « instrument », serif de labeur pour le contenu, mono pour tout
+   l'appareillage (references, compteurs, touches).
+   ========================================================================== */
+
+/* --- jetons : theme clair (par defaut) ---------------------------------- */
+:root {
+  --ground: #f2f5f6;
+  --surface: #ffffff;
+  --surface-2: #e9eef0;
+  --ink: #16242a;
+  --ink-2: #4e656d;
+  --ink-3: #7c9199;
+  --line: #d3dde0;
+  --line-strong: #b3c2c7;
+  --accent: #0e6b79;
+  --accent-ink: #0a5461;
+  --accent-soft: #ddedef;
+  --ok: #14713f;
+  --ok-ink: #0d5530;
+  --ok-soft: #dff0e5;
+  --bad: #a82a26;
+  --bad-ink: #87201c;
+  --bad-soft: #f9e6e3;
+  --shadow: 0 1px 2px rgba(22, 36, 42, .06), 0 12px 32px -18px rgba(22, 36, 42, .28);
+
+  --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Iowan Old Style",
+           "Palatino Linotype", "Liberation Serif", Georgia, serif;
+  --mono: "JetBrains Mono", "IBM Plex Mono", "SF Mono", ui-monospace,
+          "Cascadia Mono", "DejaVu Sans Mono", "Liberation Mono", monospace;
+
+  --rail: 5px;
+  --gutter: clamp(1rem, 4vw, 3rem);
+}
+
+/* --- jetons : theme sombre --------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0c1417;
+    --surface: #121d21;
+    --surface-2: #18262b;
+    --ink: #e3edef;
+    --ink-2: #9cb0b6;
+    --ink-3: #74898f;
+    --line: #24363c;
+    --line-strong: #34494f;
+    --accent: #4fc6d4;
+    --accent-ink: #93dfe8;
+    --accent-soft: #0f3138;
+    --ok: #55c98c;
+    --ok-ink: #8ce1b1;
+    --ok-soft: #0f2b1d;
+    --bad: #ff8175;
+    --bad-ink: #ffa89f;
+    --bad-soft: #321613;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 14px 36px -20px rgba(0, 0, 0, .8);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0c1417;
+  --surface: #121d21;
+  --surface-2: #18262b;
+  --ink: #e3edef;
+  --ink-2: #9cb0b6;
+  --ink-3: #74898f;
+  --line: #24363c;
+  --line-strong: #34494f;
+  --accent: #4fc6d4;
+  --accent-ink: #93dfe8;
+  --accent-soft: #0f3138;
+  --ok: #55c98c;
+  --ok-ink: #8ce1b1;
+  --ok-soft: #0f2b1d;
+  --bad: #ff8175;
+  --bad-ink: #ffa89f;
+  --bad-soft: #321613;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 14px 36px -20px rgba(0, 0, 0, .8);
+}
+
+/* --- socle -------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  /* minmax(0, 1fr) empeche un enfant a fort min-content d elargir la page */
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+[hidden] { display: none !important; }
+
+:where(button, a, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- barre haute -------------------------------------------------------- */
+.topbar {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  padding: .7rem var(--gutter);
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+  min-width: 0;
+}
+
+.brand__mark {
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 2px;
+  padding: .2rem .45rem;
+  white-space: nowrap;
+}
+
+.brand__name {
+  font-size: .93rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar__spacer { flex: 1; }
+
+.counter {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .8rem;
+  letter-spacing: .04em;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.counter b { color: var(--ink); font-weight: 700; }
+
+/* releve du score, dans la bande d appareillage */
+.score {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.score b { color: var(--ok); font-weight: 700; }
+
+.iconbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: .34rem .6rem;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.iconbtn:hover { color: var(--ink); border-color: var(--line-strong); background: var(--surface-2); }
+
+/* --- selecteur de mode -------------------------------------------------- */
+.modeswitch {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.modeswitch__btn {
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  padding: .32rem .7rem;
+  white-space: nowrap;
+  transition: color .15s, background .15s, box-shadow .15s;
+}
+.modeswitch__btn:hover { color: var(--ink); }
+.modeswitch__btn[aria-pressed="true"] {
+  color: var(--accent-ink);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+/* --- jauge de progression globale --------------------------------------- */
+.progress {
+  height: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.progress__fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width .3s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* --- bande de releve du quiz courant ------------------------------------ */
+.ticks {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.ticks__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .35rem .9rem;
+  padding: .5rem var(--gutter);
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.ticks__label {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.ticks__strip { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.tick {
+  width: 22px;
+  height: 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 1px;
+  background: transparent;
+  padding: 0;
+  transition: transform .12s, background .2s, border-color .2s;
+}
+.tick:hover { transform: translateY(-1px); border-color: var(--accent); }
+.tick[data-state="ok"] { background: var(--ok); border-color: var(--ok); }
+.tick[data-state="bad"] { background: var(--bad); border-color: var(--bad); }
+.tick[data-state="seen"] { background: var(--line-strong); }
+.tick[aria-current="true"] { box-shadow: 0 0 0 2px var(--ground), 0 0 0 3px var(--accent); }
+
+/* --- scene -------------------------------------------------------------- */
+.stage {
+  overflow-y: auto;
+  padding: clamp(1.25rem, 4vh, 2.75rem) var(--gutter);
+  display: flex;
+  flex-direction: column;
+}
+
+/* margin:auto centre verticalement sans jamais rogner le haut quand le
+   contenu depasse la hauteur de la scene (contrairement a justify-content) */
+.slide {
+  width: 100%;
+  max-width: 940px;
+  margin: auto;
+  animation: rise .3s cubic-bezier(.2, .7, .3, 1) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- en-tete de diapositive --------------------------------------------- */
+.slide__eyebrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  margin-bottom: 1.1rem;
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  padding: .22rem .5rem;
+  border-radius: 2px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.chip--quiz { color: var(--accent-ink); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+.chip--scenario { color: var(--ink); background: var(--surface-2); }
+
+.slide__topic {
+  font-family: var(--mono);
+  font-size: .74rem;
+  letter-spacing: .05em;
+  color: var(--ink-2);
+}
+
+/* --- dossier de scenario ------------------------------------------------ */
+.scenario {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: var(--rail) solid var(--line-strong);
+  border-radius: 3px;
+  margin-bottom: 1.6rem;
+  box-shadow: var(--shadow);
+}
+
+.scenario > summary {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem 1rem;
+  font-family: var(--mono);
+  font-size: .69rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  list-style: none;
+  cursor: pointer;
+}
+.scenario > summary::-webkit-details-marker { display: none; }
+.scenario > summary::before {
+  content: "\25B8";
+  color: var(--accent);
+  font-size: .85rem;
+  transition: transform .18s;
+}
+.scenario[open] > summary::before { transform: rotate(90deg); }
+.scenario[open] > summary { border-bottom: 1px solid var(--line); }
+
+.scenario__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  padding: .9rem 1.15rem 1.1rem;
+  max-height: 32vh;
+  overflow-y: auto;
+}
+
+/* premiere question d'un scenario : le recit se lit en entier, sans ascenseur
+   interne ; les questions suivantes le replient */
+.scenario--lead .scenario__body { max-height: none; overflow: visible; }
+
+.scenario__prose { max-width: 72ch; }
+.scenario__prose p {
+  margin: 0 0 .7rem;
+  font-size: .93rem;
+  line-height: 1.62;
+  color: var(--ink-2);
+}
+.scenario__prose p:last-child { margin-bottom: 0; }
+
+/* renvoi vers les questions rattachees au scenario */
+.scenario__jump {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  align-content: start;
+  border-left: 1px solid var(--line);
+  padding-left: 1.1rem;
+}
+
+.scenario__jump-label {
+  font-family: var(--mono);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: .1rem;
+}
+
+.jumpbtn {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .74rem;
+  text-align: left;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: .22rem .5rem;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.jumpbtn:hover { color: var(--ink); border-color: var(--accent); background: var(--surface-2); }
+.jumpbtn[aria-current="true"] {
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  font-weight: 700;
+}
+
+/* --- enonce ------------------------------------------------------------- */
+.question {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(.9rem, 2.5vw, 1.6rem);
+  align-items: start;
+  margin-bottom: clamp(1.4rem, 3.5vh, 2.2rem);
+}
+
+.question__index {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 3.6vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink-3);
+  opacity: .55;
+  padding-top: .12em;
+  user-select: none;
+}
+
+.question__text {
+  margin: 0;
+  font-size: clamp(1.28rem, 2.9vw, 1.95rem);
+  font-weight: 600;
+  line-height: 1.32;
+  letter-spacing: -.008em;
+  text-wrap: balance;
+  max-width: 34ch;
+  max-width: min(100%, 46ch);
+}
+
+/* --- options ------------------------------------------------------------ */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.options:not(:last-child) { margin-bottom: 1.5rem; }
+
+.option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: var(--rail) solid var(--line);
+  border-radius: 3px;
+  padding: .85rem 1.1rem;
+  transition: border-color .16s, background .16s, transform .12s, box-shadow .16s;
+  animation: rise .3s cubic-bezier(.2, .7, .3, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+.option:not(:disabled):hover {
+  border-color: var(--line-strong);
+  border-left-color: var(--accent);
+  background: var(--surface);
+  transform: translateX(2px);
+  box-shadow: var(--shadow);
+}
+
+.option:disabled { cursor: default; }
+
+.option__key {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex: none;
+  font-family: var(--mono);
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+
+.option__verdict {
+  font-family: var(--mono);
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+/* etats reveles : bonne reponse en vert, mauvaise en rouge */
+.option[data-verdict] .option__verdict { opacity: 1; }
+
+.option[data-verdict="ok"] {
+  background: var(--ok-soft);
+  border-color: color-mix(in srgb, var(--ok) 42%, transparent);
+  border-left-color: var(--ok);
+  color: var(--ok-ink);
+}
+.option[data-verdict="ok"] .option__key { background: var(--ok); border-color: var(--ok); color: var(--ok-soft); }
+.option[data-verdict="ok"] .option__verdict { color: var(--ok); }
+
+.option[data-verdict="bad"] {
+  background: var(--bad-soft);
+  border-color: color-mix(in srgb, var(--bad) 40%, transparent);
+  border-left-color: var(--bad);
+  color: var(--bad-ink);
+}
+.option[data-verdict="bad"] .option__key { background: var(--bad); border-color: var(--bad); color: var(--bad-soft); }
+.option[data-verdict="bad"] .option__verdict { color: var(--bad); }
+
+.option[data-picked="true"] { box-shadow: inset 0 0 0 1px currentColor; }
+
+/* --- bandeau de resultat (fichier questions) ---------------------------- */
+.verdictbar {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: var(--mono);
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .6rem .9rem;
+  border-radius: 3px;
+  margin-bottom: 1.2rem;
+}
+.verdictbar[data-verdict="ok"] { color: var(--ok-ink); background: var(--ok-soft); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
+.verdictbar[data-verdict="bad"] { color: var(--bad-ink); background: var(--bad-soft); border: 1px solid color-mix(in srgb, var(--bad) 35%, transparent); }
+.verdictbar small { font-weight: 400; letter-spacing: .04em; text-transform: none; color: var(--ink-2); }
+
+/* --- invitation a repondre ---------------------------------------------- */
+.prompt {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .05em;
+  color: var(--ink-3);
+}
+
+/* --- explication -------------------------------------------------------- */
+.explain {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: var(--rail) solid var(--accent);
+  border-radius: 3px;
+  padding: 1rem 1.2rem 1.15rem;
+  box-shadow: var(--shadow);
+}
+
+.explain__label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: var(--mono);
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  margin-bottom: .55rem;
+}
+.explain__label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.explain p {
+  margin: 0;
+  font-size: .99rem;
+  line-height: 1.62;
+  color: var(--ink-2);
+  max-width: 74ch;
+}
+
+/* --- barre de navigation ------------------------------------------------ */
+.navbar {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.navbar__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  padding: .7rem var(--gutter);
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.navbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: var(--mono);
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  padding: .48rem .85rem;
+  transition: background .15s, border-color .15s, transform .12s;
+}
+.navbtn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--accent); }
+.navbtn:active:not(:disabled) { transform: translateY(1px); }
+.navbtn:disabled { opacity: .35; cursor: default; }
+.navbtn--primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+:root[data-theme="dark"] .navbtn--primary { color: #06181c; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .navbtn--primary { color: #06181c; } }
+.navbtn--primary:hover:not(:disabled) { background: var(--accent-ink); border-color: var(--accent-ink); }
+
+.keyhint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .05em;
+  color: var(--ink-3);
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: .68rem;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: .05rem .32rem;
+}
+
+/* --- sommaire ----------------------------------------------------------- */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  background: var(--ground);
+  background: color-mix(in srgb, var(--ground) 82%, transparent);
+  backdrop-filter: blur(6px);
+  padding: clamp(1rem, 5vh, 3rem) var(--gutter);
+  overflow-y: auto;
+}
+.sheet[data-open="true"] { display: block; }
+
+.sheet__panel {
+  max-width: 1180px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.sheet__head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: .9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.sheet__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: .7rem;
+}
+
+.quizcard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .2rem .75rem;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: var(--rail) solid var(--line-strong);
+  border-radius: 3px;
+  padding: .7rem .85rem;
+  transition: border-color .15s, background .15s, transform .12s;
+}
+.quizcard:hover { border-left-color: var(--accent); background: var(--surface-2); transform: translateX(2px); }
+.quizcard[aria-current="true"] { border-left-color: var(--accent); background: var(--accent-soft); }
+
+.quizcard__n {
+  grid-row: span 2;
+  align-self: center;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.quizcard__title { font-size: .93rem; line-height: 1.35; font-weight: 600; }
+.quizcard__meta {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .67rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.quizcard__meta .ok { color: var(--ok); }
+.quizcard__meta .bad { color: var(--bad); }
+
+/* --- diapositive de synthese -------------------------------------------- */
+.wrap { max-width: 940px; }
+
+.wrap__title {
+  margin: .2rem 0 .4rem;
+  font-size: clamp(1.7rem, 4.2vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+}
+
+.wrap__lede {
+  margin: 0 0 1.8rem;
+  font-size: 1.02rem;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .7rem;
+  margin-bottom: 1.8rem;
+}
+
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--line-strong);
+  border-radius: 3px;
+  padding: .9rem 1rem;
+}
+.metric--ok { border-top-color: var(--ok); }
+.metric--bad { border-top-color: var(--bad); }
+.metric--accent { border-top-color: var(--accent); }
+
+.metric__value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.metric--ok .metric__value { color: var(--ok); }
+.metric--bad .metric__value { color: var(--bad); }
+
+.metric__label {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: .25rem;
+}
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
+
+table.report {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .92rem;
+}
+table.report th, table.report td {
+  padding: .55rem .8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.report th {
+  font-family: var(--mono);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--surface-2);
+}
+table.report td.title { white-space: normal; min-width: 18rem; }
+table.report th.num { text-align: right; }
+table.report td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+table.report tr:last-child td { border-bottom: 0; }
+table.report td .ok { color: var(--ok); font-weight: 700; }
+
+.linkbtn {
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  transition: color .15s, text-decoration-color .15s;
+}
+.linkbtn:hover { color: var(--accent-ink); text-decoration-color: var(--accent); }
+table.report td .bad { color: var(--bad); font-weight: 700; }
+
+.wrap__actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1.5rem; }
+
+/* --- adaptations -------------------------------------------------------- */
+@media (max-width: 900px) {
+  .brand__name { display: none; }
+}
+
+@media (max-width: 620px) {
+  .keyhint { display: none; }
+
+  /* la barre haute passe sur deux lignes : reperes et actions au-dessus,
+     selecteur de mode pleine largeur en dessous */
+  .topbar__row { flex-wrap: wrap; gap: .45rem; }
+  .modeswitch { order: 5; flex: 1 1 100%; }
+  .modeswitch__btn { flex: 1; padding: .36rem .4rem; font-size: .66rem; }
+  .counter { font-size: .72rem; }
+
+  .iconbtn { padding: .3rem .45rem; font-size: .64rem; }
+  .question { grid-template-columns: 1fr; gap: .5rem; }
+  .question__index { font-size: 1.2rem; }
+  .option { grid-template-columns: auto 1fr; gap: .75rem; }
+  .option__verdict { grid-column: 2; }
+  .ticks__strip, .ticks__label { display: none; }
+  .ticks__row { justify-content: flex-end; }
+  .scenario__body { grid-template-columns: minmax(0, 1fr); max-height: 42vh; }
+  .scenario__jump { border-left: 0; border-top: 1px solid var(--line); padding: .8rem 0 0; flex-flow: row wrap; }
+  .score { padding-left: .7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+</style>
+
+<div class="app">
+  <header class="topbar">
+    <div class="topbar__row">
+      <div class="brand">
+        <span class="brand__mark">Scénarios</span>
+        <span class="brand__name">Domaines 1, 2, 3, 4 et 6 — sous 70 % à l’examen</span>
+      </div>
+
+      <span class="topbar__spacer"></span>
+
+      <div class="modeswitch" role="group" aria-label="Mode d’affichage">
+        <button class="modeswitch__btn" type="button" data-mode="entrainement"
+                aria-pressed="true">Entraînement</button>
+        <button class="modeswitch__btn" type="button" data-mode="corrige"
+                aria-pressed="false">Corrigé</button>
+      </div>
+
+      <span class="counter mono" id="counter"></span>
+      <button class="iconbtn" type="button" id="btnIndex" aria-haspopup="dialog">Sommaire</button>
+      <button class="iconbtn" type="button" id="btnReset">Recommencer</button>
+    </div>
+
+    <div class="progress" role="progressbar" aria-label="Progression">
+      <div class="progress__fill" id="progressFill"></div>
+    </div>
+
+    <div class="ticks">
+      <div class="ticks__row">
+        <span class="ticks__label" id="ticksLabel"></span>
+        <div class="ticks__strip" id="ticksStrip"></div>
+        <span class="topbar__spacer"></span>
+        <span class="score mono" id="score"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage" id="stage"></main>
+
+  <footer class="navbar">
+    <div class="navbar__row">
+      <button class="navbtn" type="button" id="btnPrev">&#8592; Précédent</button>
+      <p class="keyhint" id="keyhint"></p>
+      <button class="navbtn navbtn--primary" type="button" id="btnNext">Suivant &#8594;</button>
+    </div>
+  </footer>
+</div>
+
+<div class="sheet" id="sheet" data-open="false" role="dialog" aria-modal="true" aria-label="Les 6 scénarios">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 class="sheet__title">Les 6 scénarios</h2>
+      <span class="topbar__spacer"></span>
+      <button class="iconbtn" type="button" id="sheetClose">Fermer</button>
+    </div>
+    <div class="sheet__grid" id="sheetGrid"></div>
+  </div>
+</div>
+
+<script>
+var CONFIG = {"store":"iso27001-scenarios-v2","group":"Scénario","groups":"scénarios","groupPad":1,"scenarioChip":false,"reportBy":"domain","target":70,"reportTitle":"Vos domaines, avant et après","domains":{"1":"Principes et concepts fondamentaux d’un SMSI","2":"Système de management de la sécurité de l’information (SMSI)","3":"Planification de la mise en œuvre d’un SMSI selon ISO/IEC 27001","4":"Mise en œuvre d’un SMSI selon ISO/IEC 27001","6":"Amélioration continue d’un SMSI selon ISO/IEC 27001"},"baseline":{"1":53.33,"2":50,"3":55.56,"4":57.14,"6":66.67}};
+var QUESTIONS = [{"n":1,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, la position du directeur général est-elle conforme à ISO/IEC 27001 ?","options":["Oui, car en désignant une cheffe de projet et en approuvant le budget, il a rempli l’essentiel de ses obligations de direction","Non, car ISO/IEC 27001 exige que le directeur général conduise lui-même le projet de mise en œuvre du SMSI","Non, car la direction doit démontrer son leadership tout au long de la vie du SMSI, pas seulement au lancement"],"correct":2,"explanation":"L’article 5.1 attend de la direction qu’elle démontre son leadership : s’assurer que la politique et les objectifs sont établis et compatibles avec la stratégie, intégrer les exigences du SMSI aux processus, fournir les ressources, communiquer sur l’importance du SMSI, orienter et soutenir les personnes, promouvoir l’amélioration continue. Elle peut confier la conduite du projet à une autre personne (article 5.3), mais pas se désengager jusqu’à la certification.","domain":2},{"n":2,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, quelle approche de mise en œuvre Inès a-t-elle retenue ?","options":["L’approche itérative, qui vise d’abord les exigences minimales avant d’améliorer","L’approche intégrée, qui harmonise le SMSI avec d’autres systèmes de management","L’approche systématique, qui applique les bonnes pratiques de gestion de projet"],"correct":2,"explanation":"Dans la formation PECB, l’approche systématique désigne l’application des bonnes pratiques de gestion de projet, telles que celles d’ISO 10006 : charte, jalons, gouvernance, gestion des risques du projet. L’approche itérative met en œuvre rapidement les exigences minimales puis améliore ; l’approche intégrée harmonise le SMSI avec d’autres systèmes de management.","domain":3},{"n":3,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, en interrogeant les partenaires, l’autorité de santé et les représentants du personnel, quelle exigence d’ISO/IEC 27001 l’équipe a-t-elle cherché à satisfaire ?","options":["L’article 4.1, qui demande de déterminer les enjeux externes et internes ayant une incidence sur le SMSI","L’article 4.2, qui demande de déterminer les parties intéressées pertinentes et leurs exigences","L’article 7.4, qui demande de déterminer les besoins de communication interne et externe"],"correct":1,"explanation":"Recueillir les attentes de personnes ou d’organismes concernés par le SMSI relève de l’article 4.2 : déterminer les parties intéressées pertinentes, leurs exigences, et celles qui seront traitées au moyen du SMSI. La liste des obligations dressée par la direction juridique alimente à la fois 4.1 et 4.2 ; l’article 7.4 porte sur la communication une fois le SMSI établi.","domain":3},{"n":4,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, l’exclusion de l’usine de production du domaine d’application est-elle acceptable ?","options":["Non, car le domaine d’application d’un SMSI doit couvrir l’ensemble des sites et des activités de l’organisation, y compris ceux confiés à des prestataires","Oui, car les automates de l’usine sont maintenus par un prestataire, ce qui place l’usine hors du SMSI","Oui, car l’organisation peut fixer ses limites dès lors qu’elle tient compte des interfaces et dépendances et documente le domaine"],"correct":2,"explanation":"L’article 4.3 laisse l’organisation déterminer les limites et l’applicabilité du SMSI, en tenant compte des enjeux (4.1), des exigences des parties intéressées (4.2) et des interfaces et dépendances avec d’autres activités ou organisations, puis exige que le domaine soit documenté. Inès l’a fait, y compris pour l’annuaire partagé. Le recours à un prestataire n’est pas en soi un motif d’exclusion : l’usine reste une activité d’Aquila.","domain":3},{"n":5,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, que doit faire Aquila de la procédure de sauvegarde quotidienne appliquée mais jamais écrite ?","options":["La documenter dans la mesure jugée nécessaire à l’efficacité du SMSI, puis la maîtriser comme toute information documentée","La conserver en l’état, car une pratique effectivement appliquée et connue de tous satisfait déjà aux exigences de la norme","La faire rédiger et approuver par l’organisme de certification, seul habilité à valider les procédures opérationnelles"],"correct":0,"explanation":"L’article 7.5.1 inclut, outre les informations documentées exigées par la norme, celles que l’organisation juge nécessaires à l’efficacité du SMSI ; l’article 7.5.3 en organise la maîtrise. La mesure 5.37 d’ISO/IEC 27002 recommande de documenter les procédures d’exploitation et de les mettre à disposition de ceux qui en ont besoin. Une pratique orale dépend des personnes qui la connaissent.","domain":4},{"n":6,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, quel principe de sécurité l’incident du tableur a-t-il compromis, et quelle faiblesse l’a rendu possible ?","options":["La confidentialité, compromise par l’absence de chiffrement du répertoire contenant les résultats des essais","L’intégrité, compromise par des droits de modification attribués bien au-delà du besoin du stagiaire","La disponibilité, compromise par l’absence de sauvegarde permettant de restaurer le tableur d’origine"],"correct":1,"explanation":"Une modification erronée rend l’information inexacte : c’est l’intégrité qui est atteinte. La vulnérabilité exploitée est l’excès de droits : un stagiaire n’avait pas besoin de modifier l’ensemble du répertoire des essais. Le principe du moindre privilège, que traite la mesure 5.18 d’ISO/IEC 27002 (Droits d’accès), aurait limité l’exposition.","domain":1},{"n":7,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, la manière dont la politique de sécurité a été validée et diffusée est-elle conforme ?","options":["Non, car la politique doit être établie par la direction, puis communiquée en interne et mise à disposition des parties intéressées","Oui, car le responsable informatique dispose des compétences techniques nécessaires pour approuver la politique, et l’intranet en assure la diffusion","Non, car une politique de sécurité ne doit pas être publiée, afin de ne fournir aucune information à un attaquant"],"correct":0,"explanation":"L’article 5.2 confie à la direction l’établissement de la politique, qui doit être disponible sous forme d’informations documentées, communiquée au sein de l’organisation et mise à la disposition des parties intéressées, selon le cas. La publication sur l’intranet est une bonne pratique ; la validation par le seul responsable informatique ne suffit pas.","domain":2},{"n":8,"quiz":1,"quizTitle":"Aquila Pharma · lancement du projet","scenario":1,"scenarioText":["Aquila Pharma est un laboratoire pharmaceutique de 800 salariés basé à Clermont-Ferrand. Il développe des médicaments génériques et conduit des essais cliniques pour le compte de partenaires européens. En 2024, deux de ses principaux partenaires ont fait de la certification ISO/IEC 27001 une condition de renouvellement de leurs contrats.","Le directeur général a nommé Inès Morel, responsable qualité, cheffe de projet SMSI. En réunion de lancement, il a précisé qu’il approuverait le budget mais ne souhaitait pas être impliqué davantage : « Inès a toute ma confiance, elle reviendra vers moi une fois le certificat obtenu. »","Inès a choisi de conduire la mise en œuvre avec la méthodologie de gestion de projet déjà employée pour les essais cliniques, inspirée d’ISO 10006 : charte de projet, jalons, comité de pilotage mensuel et registre des risques du projet.","Elle a ensuite analysé le contexte. La direction juridique a dressé la liste des obligations applicables (bonnes pratiques de fabrication, RGPD, hébergement de données de santé). L’équipe a par ailleurs interrogé les partenaires, l’Agence nationale de sécurité du médicament et les représentants du personnel pour recueillir leurs attentes en matière de sécurité de l’information.","Pour le domaine d’application, Inès a proposé de couvrir les essais cliniques et le système d’information qui les supporte, et d’exclure l’usine de production, dont les automates sont maintenus par un prestataire. Elle a documenté ce domaine en décrivant les interfaces entre le service des essais et l’usine, qui partagent le même annuaire informatique.","L’équipe a ensuite comparé les pratiques existantes aux exigences de la norme et aux mesures de l’Annexe A. Environ 60 % des mesures étaient en place mais rarement documentées : l’équipe informatique appliquait par exemple une procédure de sauvegarde quotidienne, connue de tous mais jamais écrite. L’exercice a aussi mis au jour un incident passé : un stagiaire, qui disposait des droits de modification sur l’ensemble du répertoire des essais, avait modifié par erreur un tableur de résultats, faussant une analyse statistique découverte trois mois plus tard.","Enfin, Inès a rédigé la politique de sécurité de l’information. Elle l’a fait valider par le responsable informatique, puis l’a publiée sur l’intranet."],"question":"Selon le scénario 1, contexte, domaine d’application et politique étant établis, quelle étape doit logiquement suivre ?","options":["Définir le processus d’appréciation des risques, avec ses critères, puis apprécier les risques du domaine","Mettre en œuvre sans attendre les 40 % de mesures de l’Annexe A qui ne sont pas encore en place","Solliciter un audit de certification à blanc pour mesurer l’écart restant avant toute autre action"],"correct":0,"explanation":"La planification se poursuit par l’article 6.1 : définir et appliquer un processus d’appréciation des risques (6.1.2), puis de traitement (6.1.3). Les mesures à mettre en œuvre découlent de ce traitement, et non du seul écart avec l’Annexe A ; l’audit de certification intervient une fois le SMSI en fonctionnement.","domain":3},{"n":9,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, comment qualifier respectivement l’inondation et l’implantation du local technique en zone inondable ?","options":["L’inondation est une menace, et l’implantation du local en zone inondable est la vulnérabilité qu’elle peut exploiter","L’inondation est une vulnérabilité du local, et son implantation en zone inondable est la menace qui pèse sur lui","L’inondation et l’implantation en zone inondable sont toutes deux des risques, à inscrire tels quels au registre"],"correct":0,"explanation":"Selon ISO/IEC 27000, une menace est la cause potentielle d’un incident indésirable (ici l’inondation) ; une vulnérabilité est la faiblesse d’un actif ou d’une mesure qui peut être exploitée par une menace (ici l’emplacement du local). Le risque naît de leur combinaison et s’exprime par la vraisemblance et les conséquences.","domain":1},{"n":10,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, la méthode d’appréciation des risques présentée par Karim satisfait-elle aux exigences d’ISO/IEC 27001 ?","options":["Oui, car elle fixe des critères d’acceptation et de réalisation des appréciations, documentés et approuvés","Non, car ISO/IEC 27001 impose d’appliquer la méthode d’appréciation décrite dans ISO/IEC 27005","Non, car ISO/IEC 27001 exige une évaluation financière des risques plutôt que des échelles qualitatives"],"correct":0,"explanation":"L’article 6.1.2 a) exige d’établir et de tenir à jour des critères de risque, dont les critères d’acceptation et ceux de réalisation des appréciations. La norme n’impose aucune méthode : ISO/IEC 27005 fournit des lignes directrices, et les approches qualitatives comme quantitatives sont admises.","domain":3},{"n":11,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, la proposition de Karim d’être propriétaire de tous les risques est-elle appropriée ?","options":["Non, car chaque risque doit revenir à une personne qui a la responsabilité et l’autorité pour le gérer","Oui, car un propriétaire unique garantit un suivi homogène et une vision consolidée de l’ensemble des risques","Non, car ISO/IEC 27001 exige que l’ensemble des risques soit attribué au directeur général, seul redevable"],"correct":0,"explanation":"ISO/IEC 27000 définit le propriétaire du risque comme la personne ou l’entité ayant la responsabilité et l’autorité pour gérer un risque. Le responsable du SMSI coordonne le processus, mais n’a généralement pas l’autorité sur les activités portuaires, la facturation ou l’informatique. L’article 6.1.2 c) demande d’identifier les propriétaires des risques.","domain":3},{"n":12,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, quelle option de traitement la direction a-t-elle retenue pour le risque d’inondation ?","options":["La modification du risque","Le partage du risque","L’évitement du risque"],"correct":2,"explanation":"ISO/IEC 27005 décrit l’évitement comme le fait de renoncer à une activité ou de modifier les conditions dans lesquelles elle s’exerce pour ne plus être exposé au risque ; elle cite notamment le déplacement des moyens de traitement hors d’une zone exposée à un aléa naturel. La modification agirait sur la vraisemblance ou l’impact sans supprimer l’exposition, par exemple en surélevant les baies.","domain":3},{"n":13,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, l’application des correctifs et l’isolement du réseau des grues correspondent à quel type de mesures ?","options":["Des mesures détectives et technologiques, qui relèvent de la journalisation et de la surveillance des activités réseau","Des mesures préventives et technologiques, qui relèvent de la gestion des vulnérabilités techniques et du cloisonnement des réseaux","Des mesures correctives et organisationnelles, qui relèvent de la réponse aux incidents de sécurité de l’information"],"correct":1,"explanation":"Les deux dispositions visent à empêcher l’exploitation de la faiblesse avant tout incident : elles sont préventives. ISO/IEC 27002:2022 les classe dans le thème technologique : 8.8 Gestion des vulnérabilités techniques et 8.22 Cloisonnement des réseaux.","domain":1},{"n":14,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, l’acceptation du risque de cyberattaque sur la facturation est-elle valable en l’état ?","options":["Non, car un risque au-dessus du seuil ne peut être retenu que par une décision explicite et justifiée de son propriétaire, documentée","Oui, car la direction peut accepter n’importe quel risque, quel que soit son niveau, sans autre formalité","Non, car un risque d’un niveau supérieur au seuil d’acceptation doit obligatoirement être traité par réduction, jusqu’à repasser sous ce seuil"],"correct":0,"explanation":"Le niveau 6 dépasse le seuil d’acceptation de 4. ISO/IEC 27005 admet qu’un risque soit retenu au-delà des critères, à condition que la décision soit explicite et justifiée. ISO/IEC 27001 (article 6.1.3 f) confie l’acceptation des risques résiduels à leurs propriétaires, et le processus de traitement doit être documenté. Une déclaration orale « faute de budget » ne remplit pas ces conditions.","domain":3},{"n":15,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, que manque-t-il à la déclaration d’applicabilité présentée par Karim ?","options":["Les mesures de l’Annexe A non retenues avec la justification de leur exclusion, ainsi que l’état de mise en œuvre des mesures","Le coût estimé et le budget alloué à chacune des mesures retenues, nécessaires à l’arbitrage de la direction","Rien, car la déclaration d’applicabilité n’a vocation à présenter que les mesures effectivement retenues"],"correct":0,"explanation":"L’article 6.1.3 d) exige une déclaration d’applicabilité contenant les mesures nécessaires et la justification de leur inclusion, l’indication de leur mise en œuvre ou non, et la justification de l’exclusion de toute mesure de l’Annexe A. Les 93 mesures de l’Annexe A doivent donc toutes y apparaître.","domain":3},{"n":16,"quiz":2,"quizTitle":"Terminal Rhône Conteneurs · comité de pilotage","scenario":2,"scenarioText":["Terminal Rhône Conteneurs (TRC) exploite un terminal portuaire fluvial à Lyon : déchargement des barges, stockage et expédition des conteneurs. Son SMSI est en cours de planification. Voici le compte rendu du comité de pilotage du 12 mars.","Méthode. Karim, responsable du SMSI, présente la méthode retenue : chaque risque est évalué sur une échelle de vraisemblance et une échelle d’impact de 1 à 4 ; le niveau de risque est leur produit. Tout risque d’un niveau inférieur ou égal à 4 est accepté. La méthode et les échelles ont été documentées et approuvées par la direction.","Identification. L’équipe a recensé les actifs, puis les menaces et vulnérabilités qui les concernent. Elle relève notamment que le logiciel de pilotage des grues n’a pas été mis à jour depuis deux ans, alors que l’éditeur a publié plusieurs correctifs de sécurité, et que le local technique du quai 3, qui héberge les serveurs d’exploitation, se trouve en zone inondable.","Propriétaires. Pour simplifier, Karim propose d’être désigné propriétaire de l’ensemble des risques : « je suis le mieux placé pour les suivre ».","Traitement. Pour le risque d’inondation, la direction décide de déménager les serveurs dans un bâtiment situé hors zone inondable. Pour le logiciel des grues, elle décide d’appliquer les correctifs et d’isoler le réseau des grues du reste du système d’information. Pour le risque de cyberattaque sur la facturation, évalué au niveau 6, le directeur général déclare qu’il « accepte le risque pour cette année, faute de budget ».","Déclaration d’applicabilité. Karim présente une première version de la déclaration d’applicabilité, qui liste uniquement les mesures retenues ; les mesures de l’Annexe A non retenues n’y apparaissent pas.","Suite. Le comité convient de réapprécier les risques une fois par an, « et seulement une fois par an, pour ne pas alourdir le dispositif »."],"question":"Selon le scénario 2, la décision de réapprécier les risques « une fois par an, et seulement une fois par an » est-elle conforme ?","options":["Oui, car ISO/IEC 27001 fixe une fréquence annuelle de réappréciation, indépendamment des changements qui surviennent entre-temps","Non, car les risques doivent aussi être réappréciés lorsque des changements significatifs sont envisagés ou surviennent","Non, car ISO/IEC 27001 impose une réappréciation complète des risques au moins chaque trimestre"],"correct":1,"explanation":"L’article 8.2 exige de réaliser les appréciations des risques à des intervalles planifiés, et lorsque des changements significatifs sont envisagés ou se produisent, en tenant compte des critères de 6.1.2 a). La norme ne fixe aucune fréquence ; exclure toute réappréciation hors calendrier contredit l’exigence.","domain":2},{"n":17,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3 et la terminologie d’ISO/IEC 27000, comment qualifier la réception de l’e-mail frauduleux, considérée isolément, puis l’exportation de la base des commerçants ?","options":["La réception de l’e-mail est déjà un incident de sécurité de l’information, et l’exportation est une non-conformité","La réception de l’e-mail et l’exportation restent toutes deux de simples événements tant que l’enquête n’a pas établi de préjudice avéré","La réception de l’e-mail est un événement de sécurité de l’information, et l’exportation un incident de sécurité de l’information"],"correct":2,"explanation":"Un événement de sécurité de l’information est une occurrence indiquant une possible violation de la sécurité ou une défaillance des mesures. Un incident est un ou plusieurs événements, liés et identifiés, susceptibles de nuire aux actifs ou de compromettre les activités. L’exportation avérée d’une base de données est un incident ; un e-mail suspect reçu, pris isolément, est un événement à signaler et à évaluer (ISO/IEC 27002, mesure 5.25).","domain":1},{"n":18,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, le développeur n’a pas signalé l’e-mail suspect faute de savoir à qui s’adresser. Quelle mesure traite directement ce point ?","options":["Annexe A 6.3 Sensibilisation, enseignement et formation en matière de sécurité de l’information","Annexe A 5.26 Réponse aux incidents de sécurité de l’information","Annexe A 6.8 Déclaration des événements de sécurité de l’information"],"correct":2,"explanation":"La mesure 6.8 demande que le personnel dispose d’un mécanisme permettant de signaler rapidement, par des canaux appropriés, les événements de sécurité observés ou suspectés. Le développeur ignorait à qui s’adresser : le canal n’existait pas ou n’était pas connu. La sensibilisation (6.3) aide à reconnaître l’hameçonnage, mais c’est la mesure 6.8 qui organise le signalement ; la réponse aux incidents (5.26) n’intervient qu’ensuite. Un signalement à 08 h 40 aurait permis de bloquer le compte avant la connexion de 09 h 15.","domain":4},{"n":19,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, quelle mesure aurait empêché l’attaquant de se connecter au VPN avec les seuls identifiants dérobés ?","options":["Annexe A 8.23 Filtrage web","Annexe A 8.5 Authentification sécurisée","Annexe A 8.17 Synchronisation des horloges"],"correct":1,"explanation":"La mesure 8.5 demande de mettre en œuvre des technologies et procédures d’authentification sécurisée adaptées au niveau de sensibilité de l’accès ; pour un accès distant à privilèges, une authentification multifacteur rend inutilisable un mot de passe volé. Le filtrage web aurait pu bloquer la page frauduleuse, mais il n’agit pas sur la connexion au VPN.","domain":4},{"n":20,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, le maintien des droits d’administrateur du développeur un an après la fin du projet méconnaît quel principe ?","options":["La défense en profondeur","Le moindre privilège","La séparation des environnements"],"correct":1,"explanation":"Le principe du moindre privilège limite les droits de chacun au strict nécessaire à ses fonctions actuelles. Des droits attribués pour un projet terminé auraient dû être retirés : la mesure 5.18 (Droits d’accès) demande de les revoir régulièrement et de les ajuster lorsque le besoin change, la mesure 8.2 encadre spécifiquement les droits d’accès à privilèges.","domain":1},{"n":21,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, l’analyste d’astreinte ne connaît pas la procédure de réponse. Quelle exigence d’ISO/IEC 27001 est en cause en premier lieu ?","options":["L’article 7.4 Communication, car la procédure n’a pas été diffusée à l’ensemble du personnel","L’article 7.2 Compétence, car l’organisation doit s’assurer que les personnes occupant des rôles de sécurité sont compétentes","L’article 9.2 Audit interne, car la procédure de réponse aux incidents n’a été ni auditée ni testée avant l’obtention de la certification"],"correct":1,"explanation":"L’article 7.2 demande de déterminer les compétences nécessaires aux personnes dont le travail a une incidence sur la sécurité de l’information, de s’assurer qu’elles les possèdent et d’agir pour combler les écarts. Placer en astreinte un analyste non formé à la réponse aux incidents est une défaillance de compétence avant d’être un défaut de communication.","domain":4},{"n":22,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, la déclaration d’applicabilité présente le chiffrement comme mis en œuvre alors que les données exportées étaient en clair. Que révèle cet écart ?","options":["Un défaut sans conséquence, car la déclaration d’applicabilité énonce des intentions et non l’état réel des mesures","Une faute de l’organisme de certification, qui aurait dû vérifier lui-même le chiffrement de chaque base de données","Une non-conformité potentielle, car la déclaration doit indiquer si chaque mesure nécessaire est effectivement mise en œuvre"],"correct":2,"explanation":"L’article 6.1.3 d) exige que la déclaration d’applicabilité indique si les mesures nécessaires sont mises en œuvre ou non. Une mesure déclarée en place mais inopérante sur des données sensibles révèle un écart entre le SMSI documenté et la réalité, à traiter au titre de l’article 10.2. La responsabilité en incombe à l’organisation, pas à l’organisme de certification, qui procède par échantillonnage.","domain":2},{"n":23,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, quelle mesure a été négligée lorsque l’administrateur a réinstallé le serveur avant toute copie ?","options":["Annexe A 8.32 Gestion des changements","Annexe A 8.10 Suppression des informations","Annexe A 5.28 Recueil de preuves"],"correct":2,"explanation":"La mesure 5.28 demande d’établir et d’appliquer des procédures pour identifier, recueillir, acquérir et préserver les preuves liées aux événements de sécurité. Réinstaller le serveur a détruit les journaux et le disque, indispensables pour comprendre l’attaque et pour d’éventuelles suites judiciaires ou réglementaires.","domain":4},{"n":24,"quiz":3,"quizTitle":"Kalia Pay · chronologie d’un incident","scenario":3,"scenarioText":["Kalia Pay est une fintech de 120 salariés qui traite les paiements de 3 000 commerçants. Son SMSI est certifié depuis dix-huit mois. Voici la chronologie, reconstituée après coup, de l’incident du 14 novembre.","08 h 40 — Un développeur reçoit un e-mail imitant le service des ressources humaines, qui l’invite à consulter sa « nouvelle grille de primes ». Il saisit ses identifiants sur la page proposée. Il la trouve étrange mais ne le signale pas : « je ne savais pas à qui m’adresser ».","09 h 15 — L’attaquant se connecte au VPN avec ces identifiants : l’accès distant n’exige qu’un mot de passe. Le compte du développeur dispose de droits d’administrateur sur tous les serveurs, attribués pour un projet terminé depuis un an et jamais retirés.","11 h 30 — L’outil de supervision détecte une exportation massive de la base des commerçants vers une adresse IP inconnue et alerte l’équipe d’exploitation. L’analyste d’astreinte, recruté la semaine précédente, ne connaît pas la procédure de réponse et attend 13 h pour joindre son responsable.","13 h 20 — Le responsable sécurité coupe le VPN et désactive le compte. L’analyse montre que les données exportées n’étaient pas chiffrées, alors que la déclaration d’applicabilité de Kalia Pay présente la mesure « Utilisation de la cryptographie » comme mise en œuvre.","13 h 45 — Pour accélérer la remise en service, un administrateur réinstalle le serveur compromis, avant toute copie de ses journaux et de son disque.","Jours suivants — Kalia Pay notifie la violation à l’autorité de contrôle et informe les commerçants concernés. Trois semaines plus tard, lors de la réunion de retour d’expérience, le directeur général propose de « ne pas en faire un dossier » et de clore l’incident sans autre suite."],"question":"Selon le scénario 3, que doit faire Kalia Pay face à la proposition du directeur général de clore l’incident sans suite ?","options":["Tirer les enseignements de l’incident et traiter chaque défaillance par une action corrective, dont l’efficacité sera vérifiée","Clore l’incident, puisque le service est rétabli, l’autorité de contrôle notifiée dans les délais et les commerçants concernés tous informés","Reporter toute décision à l’audit de surveillance, qui dira si des actions correctives sont attendues"],"correct":0,"explanation":"La mesure 5.27 demande d’exploiter les connaissances acquises lors des incidents pour renforcer les mesures. Les défaillances relevées (signalement, authentification, droits, compétence, chiffrement, preuves) sont autant de non-conformités : l’article 10.2 impose d’en rechercher les causes, de mettre en œuvre des actions correctives et d’en examiner l’efficacité, sans attendre un audit externe.","domain":6},{"n":25,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, laquelle des actions de Nadia constitue une action corrective au sens d’ISO/IEC 27001 ?","options":["La revue des droits en urgence et la suppression des 85 comptes inutiles","La désignation d’un responsable de la revue et son inscription dans l’outil, avec alerte automatique","La proposition de supprimer les objectifs de sécurité qui ne peuvent pas être mesurés"],"correct":1,"explanation":"Une correction élimine la non-conformité détectée : supprimer les comptes inutiles traite le symptôme. Une action corrective élimine la cause pour éviter la réapparition : l’analyse a montré que la revue n’avait plus de responsable, et c’est cette cause que traitent la désignation et l’alerte.","domain":6},{"n":26,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, quelle étape de l’article 10.2 Nadia a-t-elle réalisée en réunissant les chefs de service ?","options":["L’évaluation du besoin d’agir sur les causes, par la recherche de la cause de la non-conformité","L’examen de l’efficacité de l’action corrective déjà mise en œuvre par le service informatique","La revue de direction, qui doit précéder toute décision d’action corrective"],"correct":0,"explanation":"L’article 10.2 demande, après avoir réagi à la non-conformité, d’évaluer s’il faut agir pour éliminer ses causes : revoir la non-conformité, en déterminer les causes, rechercher si des non-conformités similaires existent ou pourraient survenir. La réunion a établi la cause : la tâche n’était plus attribuée.","domain":6},{"n":27,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, que reste-t-il à faire pour clore l’action corrective du constat 3 ?","options":["Rien, l’action corrective est close dès lors qu’un responsable a été désigné et l’alerte configurée","Vérifier à la prochaine échéance que la revue a bien eu lieu, puis conserver la preuve de l’action et de son résultat","Soumettre l’action à l’organisme de certification, seul habilité à constater son efficacité"],"correct":1,"explanation":"L’article 10.2 exige d’examiner l’efficacité de toute action corrective mise en œuvre et de conserver des informations documentées sur la nature des non-conformités, les actions menées et leurs résultats. L’efficacité se constate à l’usage, ici lorsque la première revue semestrielle a effectivement lieu ; c’est à l’organisation de la vérifier.","domain":6},{"n":28,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, comment traiter le constat 4 (authentification à deux facteurs au-delà de la politique) ?","options":["Comme une non-conformité, car toute pratique qui s’écarte de la politique de sécurité est non conforme","Comme une non-conformité majeure, car le service informatique a modifié le système sans autorisation","Comme un point fort ou une opportunité d’amélioration, qui peut conduire à mettre à jour la politique"],"correct":2,"explanation":"Une non-conformité est le non-respect d’une exigence. Aller au-delà d’une exigence ne la viole pas : l’auditeur peut relever un point fort ou une opportunité d’amélioration. L’organisation examinera s’il convient de généraliser la pratique et de mettre à jour la politique ; si elle juge que cette initiative contourne sa gestion des changements, c’est ce défaut qu’il faudra traiter, pas la mesure elle-même.","domain":2},{"n":29,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, la proposition de Nadia de supprimer les objectifs de sécurité est-elle acceptable ?","options":["Oui, car les objectifs de sécurité sont facultatifs lorsque l’organisation ne dispose pas d’indicateurs","Non, car l’article 6.2 exige des objectifs, mesurables lorsque c’est possible, avec la manière d’évaluer leurs résultats","Oui, à condition de justifier l’absence d’objectifs dans la déclaration d’applicabilité"],"correct":1,"explanation":"L’article 6.2 impose d’établir des objectifs de sécurité de l’information aux fonctions et niveaux concernés, mesurables lorsque c’est possible, surveillés et mis à jour, en précisant comment leurs résultats seront évalués. L’absence d’indicateur appelle une correction des objectifs, pas leur suppression ; la déclaration d’applicabilité ne porte que sur les mesures.","domain":2},{"n":30,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, quelle exigence d’ISO/IEC 27001 le constat 1 met-il en défaut ?","options":["L’article 7.2 Compétence, car les agents n’ont pas reçu la formation technique nécessaire à leur poste","L’article 7.3 Sensibilisation, car le personnel doit connaître la politique et sa contribution à l’efficacité du SMSI","L’article 7.5 Informations documentées, car la politique n’est pas maîtrisée comme information documentée"],"correct":1,"explanation":"L’article 7.3 exige que les personnes travaillant sous le contrôle de l’organisation soient sensibilisées à la politique de sécurité, à leur contribution à l’efficacité du SMSI et aux conséquences d’un manquement. Des agents qui ignorent l’existence de la politique en sont la preuve directe. L’article 7.2 vise les compétences requises par les personnes dont le travail a une incidence sur la sécurité.","domain":4},{"n":31,"quiz":4,"quizTitle":"Val-Vert Agglomération · rapport d’audit interne","scenario":4,"scenarioText":["La communauté d’agglomération du Val-Vert (430 agents) a mis en place un SMSI couvrant ses services numériques aux usagers : état civil en ligne, inscriptions scolaires et paiement des services. L’audit interne annuel a eu lieu en septembre. Extrait du rapport :","Constat 1 — Le plan de sensibilisation prévu pour l’année n’a pas été réalisé : 40 % des agents n’ont suivi aucune action de sensibilisation et plusieurs ignorent l’existence de la politique de sécurité.","Constat 2 — Les objectifs de sécurité de l’information sont formulés, mais aucun indicateur ne permet de savoir s’ils sont atteints.","Constat 3 — La procédure de gestion des accès prévoit une revue semestrielle des droits ; aucune revue n’a eu lieu depuis dix-huit mois.","Constat 4 — Le service informatique a mis en place, de sa propre initiative, une authentification à deux facteurs sur la messagerie, au-delà de ce qu’exige la politique.","Suites données. Nadia, responsable du SMSI, lance d’abord une revue des droits en urgence et supprime 85 comptes inutiles. Elle réunit ensuite les chefs de service : l’analyse montre que la revue semestrielle n’a plus été attribuée à personne depuis le départ de l’agent qui la réalisait. Nadia désigne un nouveau responsable et inscrit la revue dans l’outil de gestion des tâches, avec une alerte automatique à chaque échéance.","Pour le constat 2, Nadia propose de supprimer purement et simplement les objectifs de sécurité, « puisqu’on ne sait pas les mesurer ».","En décembre, la revue de direction examine les résultats de l’audit, l’état des actions correctives et les retours des usagers. La direction générale décide d’étendre le SMSI au service d’urbanisme en 2025."],"question":"Selon le scénario 4, la décision de la direction générale d’étendre le SMSI au service d’urbanisme relève de quoi ?","options":["D’une action corrective, qui répond au constat 1 du rapport d’audit interne et à l’insuffisance de sensibilisation des agents","D’une correction, imposée par l’audit interne et à réaliser avant la fin de l’année","D’une décision d’amélioration issue de la revue de direction, dont la mise en œuvre devra être planifiée"],"correct":2,"explanation":"L’article 9.3.3 prévoit que les résultats de la revue de direction comprennent les décisions relatives aux opportunités d’amélioration et aux besoins de modification du SMSI ; l’article 10.1 demande d’améliorer continuellement le système. Étendre le domaine d’application est une telle décision, à mettre en œuvre de façon planifiée (article 6.3). Elle ne répond à aucune non-conformité.","domain":6},{"n":32,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, quel principe le partage des maquettes par liens publics menace-t-il, et quelle mesure traite directement ce point ?","options":["La confidentialité, traitée par Annexe A 5.14 Transfert des informations","La disponibilité, traitée par Annexe A 8.14 Redondance des moyens de traitement de l’information","L’intégrité, traitée par Annexe A 8.17 Synchronisation des horloges"],"correct":0,"explanation":"Un lien public rend les maquettes accessibles à quiconque l’obtient : la confidentialité est menacée. La mesure 5.14 demande que des règles, procédures ou accords encadrent tous les types de transfert d’informations, en interne comme avec les tiers. Le recours aux prestataires d’animation relève aussi des mesures sur les relations avec les fournisseurs (5.19 à 5.22).","domain":1},{"n":33,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, quelle mesure Léa doit-elle appliquer en priorité au dépôt de code source ouvert en écriture à tous ?","options":["Annexe A 8.6 Dimensionnement","Annexe A 7.12 Sécurité du câblage","Annexe A 8.4 Accès au code source"],"correct":2,"explanation":"La mesure 8.4 demande de gérer de manière appropriée les accès en lecture et en écriture au code source, aux outils de développement et aux bibliothèques logicielles. Donner l’écriture à tous, stagiaires compris, expose le code à des modifications non autorisées, accidentelles ou malveillantes, et à des fuites.","domain":4},{"n":34,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, l’utilisation d’une copie des comptes réels des joueurs pour les tests est-elle une bonne pratique ?","options":["Non, car les informations de test doivent être choisies et protégées, par exemple par masquage des données personnelles","Oui, car des données réelles rendent les tests plus représentatifs, ce qui sert la qualité du jeu","Oui, à condition que l’environnement de test soit hébergé sur les mêmes serveurs que la production"],"correct":0,"explanation":"La mesure 8.33 demande que les informations de test soient sélectionnées, protégées et gérées de manière appropriée ; la mesure 8.11 recommande le masquage des données, en particulier des données à caractère personnel. Héberger les tests avec la production contredirait en outre la mesure 8.31 (Séparation des environnements).","domain":4},{"n":35,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, l’absence de clause de confidentialité dans les contrats est-elle justifiée par le silence de l’éditeur ?","options":["Oui, car les engagements de confidentialité ne s’imposent que lorsqu’un client, un éditeur ou une autorité les exige expressément par contrat","Non, car les conditions d’emploi doivent préciser les responsabilités de sécurité, appuyées par des accords de confidentialité","Non, car la confidentialité doit figurer uniquement dans la politique de sécurité, et non dans les contrats"],"correct":1,"explanation":"La mesure 6.2 demande que les accords contractuels d’emploi indiquent les responsabilités du personnel et de l’organisation en matière de sécurité de l’information ; la mesure 6.6 prévoit des accords de confidentialité ou de non-divulgation reflétant les besoins de protection de l’organisation. Ces besoins découlent des risques identifiés par Pixelnord, pas des seules demandes de l’éditeur.","domain":2},{"n":36,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, quelle mesure de l’Annexe A n’est pas respectée lorsqu’un salarié part sans rendre son ordinateur portable ?","options":["Annexe A 5.9 Inventaire des informations et autres actifs associés","Annexe A 8.6 Dimensionnement","Annexe A 5.11 Restitution des actifs"],"correct":2,"explanation":"La mesure 5.11 demande que le personnel et les autres parties intéressées restituent tous les actifs de l’organisation en leur possession au changement ou à la fin de leur emploi, contrat ou accord. L’inventaire (5.9) permet de savoir ce qui doit être restitué, mais c’est bien la restitution qui fait ici défaut.","domain":2},{"n":37,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, que manque-t-il à la note envoyée aux télétravailleurs ?","options":["Une signature de chaque télétravailleur, qui suffit à démontrer qu’il a lu et compris les bonnes pratiques","Une validation de la note par l’organisme de certification avant sa diffusion au personnel","Des mesures propres au télétravail et une sensibilisation dont l’effet est vérifié, au-delà du simple envoi"],"correct":2,"explanation":"La mesure 6.7 demande des mesures de sécurité adaptées au travail à distance, ce qui inclut l’encadrement des ordinateurs personnels. L’article 7.3 exige que les personnes soient effectivement sensibilisées, et la mesure 6.3 recommande d’évaluer la compréhension à l’issue des actions de sensibilisation. Envoyer une note sans savoir qui l’a lue ne démontre rien.","domain":4},{"n":38,"quiz":5,"quizTitle":"Pixelnord · notes d’entretiens","scenario":5,"scenarioText":["Pixelnord est un studio de jeux vidéo lillois de 250 personnes, dont la moitié en télétravail. Un éditeur international lui confie le développement d’un jeu très attendu, à condition que le code source et les éléments graphiques soient protégés. Léa, nouvelle responsable de la sécurité, rencontre les responsables d’équipe pendant sa première semaine. Extraits de ses notes :","Responsable de production — « Les graphistes partagent les maquettes non publiées avec nos prestataires d’animation par des liens publics de stockage en ligne. C’est plus rapide que les procédures. »","Directeur technique — « Le code source est dans notre dépôt. Tout le monde y a accès en lecture et en écriture, stagiaires compris : ça évite les demandes. Pour les tests, on utilise une copie des comptes réels des joueurs de notre précédent jeu. »","Responsable des ressources humaines — « Les contrats de travail ne parlent pas de confidentialité : l’éditeur ne l’a pas demandé explicitement. Quand quelqu’un part, on récupère son badge, mais pas toujours son ordinateur portable. »","Responsable informatique — « Les télétravailleurs utilisent leurs ordinateurs personnels. On leur a envoyé une note de cinq pages sur les bonnes pratiques, mais je ne sais pas qui l’a lue. »","Office manager — « Les bureaux sont en open space. Les esquisses des personnages restent souvent sur les tables le soir, et l’équipe de ménage d’un prestataire passe à 21 h. »","À l’issue de ces entretiens, Léa rédige un plan d’action."],"question":"Selon le scénario 5, quelle mesure Léa doit-elle inscrire à son plan d’action pour les esquisses laissées sur les tables le soir ?","options":["Annexe A 7.7 Bureau propre et écran vide","Annexe A 7.4 Surveillance de la sécurité physique","Annexe A 7.12 Sécurité du câblage"],"correct":0,"explanation":"La mesure 7.7 demande de définir et d’appliquer des règles de bureau propre pour les documents papier et les supports amovibles, et d’écran vide pour les moyens de traitement. Une vidéosurveillance (7.4) pourrait détecter un vol, mais n’empêche pas qu’un document laissé sur un bureau soit vu ou photographié par le personnel de ménage.","domain":4},{"n":39,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, l’intégration du SMSI au système de management qualité et environnement est-elle envisageable ?","options":["Oui, car les normes ISO de système de management partagent une structure harmonisée qui facilite leur intégration","Non, car ISO/IEC 27001 exige un système de management distinct, audité séparément des autres","Oui, mais à condition de renoncer aux certifications ISO 9001 et ISO 14001 au profit d’ISO/IEC 27001"],"correct":0,"explanation":"ISO/IEC 27001, ISO 9001 et ISO 14001 suivent la structure harmonisée des normes ISO de système de management (anciennement Annexe SL) : mêmes articles de haut niveau, texte et définitions communs. Un système de management intégré peut répondre aux trois normes, chacune restant certifiable.","domain":2},{"n":40,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, le recours à ISO/IEC 27005 et à ISO/IEC 27002 décidé dans l’orientation 2 est-il cohérent ?","options":["Non, car ISO/IEC 27005 énonce les exigences certifiables du SMSI, tandis qu’ISO/IEC 27002 traite de la protection de la vie privée","Oui, car ISO/IEC 27005 guide la gestion des risques et ISO/IEC 27002 décrit des mesures de référence, sans être certifiables","Non, car ISO/IEC 27001 interdit de recourir à d’autres normes pour concevoir le SMSI"],"correct":1,"explanation":"ISO/IEC 27005 fournit des lignes directrices pour gérer les risques de sécurité de l’information, en appui des exigences d’ISO/IEC 27001 ; ISO/IEC 27002 fournit un ensemble de référence de mesures et des recommandations de mise en œuvre. Seule ISO/IEC 27001 contient des exigences certifiables ; la protection de la vie privée relève d’ISO/IEC 27701.","domain":1},{"n":41,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, que penser de la suggestion de « demander directement l’accréditation au COFRAC » ?","options":["Elle confond deux notions : le COFRAC accrédite les organismes de certification, qui certifient les organisations","Elle est pertinente, car l’accréditation remplace la certification pour les organismes publics","Elle est pertinente, car le COFRAC certifie directement les SMSI des entités soumises à la directive NIS 2, sans intermédiaire"],"correct":0,"explanation":"L’accréditation est la reconnaissance, par un organisme national comme le COFRAC en France, de la compétence et de l’impartialité d’un organisme d’évaluation de la conformité. C’est cet organisme de certification accrédité qui audite et certifie le SMSI d’une organisation. Hydréa ne peut pas demander une accréditation pour elle-même.","domain":1},{"n":42,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, la proposition d’adopter le NIST Cybersecurity Framework à la place d’ISO/IEC 27001 est-elle adaptée à l’objectif fixé ?","options":["Oui, car le NIST Cybersecurity Framework est une norme certifiable, reconnue de manière équivalente en Europe","Oui, car le NIST Cybersecurity Framework est le référentiel imposé par la directive NIS 2","Non, car le NIST Cybersecurity Framework est un cadre volontaire, qui ne donne lieu à aucune certification"],"correct":2,"explanation":"Le NIST Cybersecurity Framework est un cadre volontaire de gestion des risques de cybersécurité. Il peut compléter un SMSI, mais il ne fait l’objet d’aucune certification et n’est pas imposé par NIS 2. Il ne permet donc pas d’atteindre l’objectif fixé par le conseil : une certification ISO/IEC 27001 dans les deux ans.","domain":1},{"n":43,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, quelle propriété de la sécurité de l’information la direction juridique vise-t-elle dans l’orientation 6 ?","options":["La disponibilité","La confidentialité","La non-répudiation"],"correct":2,"explanation":"ISO/IEC 27000 définit la sécurité de l’information comme la préservation de la confidentialité, de l’intégrité et de la disponibilité, en précisant que d’autres propriétés peuvent être concernées, comme l’authenticité, l’imputabilité, la non-répudiation et la fiabilité. La non-répudiation est la capacité à prouver qu’une action a eu lieu et qui en est l’auteur, de sorte que celui-ci ne puisse pas la contester.","domain":1},{"n":44,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, comment Hydréa doit-elle prendre en compte la directive NIS 2 dans la planification de son SMSI ?","options":["Elle n’a pas à la prendre en compte, car la certification ISO/IEC 27001 vaut à elle seule présomption de conformité à NIS 2","Comme une exigence légale à identifier dans le contexte, puis à refléter dans l’appréciation des risques et le choix des mesures","Uniquement après l’obtention de la certification, lors de la première revue de direction"],"correct":1,"explanation":"Les obligations légales et réglementaires font partie des enjeux et des exigences des parties intéressées (articles 4.1 et 4.2) ; elles orientent l’appréciation des risques et le choix des mesures, et la mesure 5.31 d’ISO/IEC 27002 demande de les identifier et de les tenir à jour. Un SMSI certifié aide fortement à satisfaire NIS 2, mais la certification n’en vaut pas conformité automatique.","domain":3},{"n":45,"quiz":6,"quizTitle":"Hydréa · décisions du comité de direction","scenario":6,"scenarioText":["Hydréa, régie des eaux d’une métropole de 600 agents, distribue l’eau potable à 900 000 habitants. Elle est certifiée ISO 9001 et ISO 14001. Avec la transposition de la directive NIS 2, elle relève désormais des entités soumises à des obligations de gestion des risques de cybersécurité et de notification des incidents.","Le conseil d’administration demande un plan d’action. Le comité de direction retient les orientations suivantes :","1. Mettre en place un SMSI conforme à ISO/IEC 27001 et le faire certifier dans les deux ans, en l’intégrant au système de management qualité et environnement existant.","2. S’appuyer sur ISO/IEC 27005 pour la gestion des risques et sur ISO/IEC 27002 pour le choix et la mise en œuvre des mesures.","3. Inclure dans le domaine d’application les systèmes de télégestion des stations de pompage et de traitement.","4. Faire appel à un organisme de certification. La directrice qualité suggère plutôt de « demander directement l’accréditation au COFRAC, ce sera plus rapide ».","5. Le directeur des systèmes d’information propose d’adopter à la place le NIST Cybersecurity Framework, « plus moderne », et de renoncer à la certification.","6. La direction juridique rappelle qu’un ordre de modification du dosage de chlore envoyé par la télégestion doit pouvoir être attribué de façon certaine à son émetteur, qui ne doit pas pouvoir le contester.","Le comité confie enfin la conduite du projet au directeur des opérations."],"question":"Selon le scénario 6, que doit encore faire la direction après avoir confié le projet au directeur des opérations, au titre de l’article 5.3 ?","options":["Faire valider cette désignation par l’organisme de certification avant le lancement des travaux, comme l’exige la procédure de certification","Attribuer et communiquer les responsabilités et autorités des rôles de sécurité, dont le compte rendu des performances du SMSI","Rien de plus, car la désignation d’un responsable de projet satisfait entièrement l’article 5.3"],"correct":1,"explanation":"L’article 5.3 demande à la direction de s’assurer que les responsabilités et autorités des rôles concernés par la sécurité de l’information sont attribuées et communiquées au sein de l’organisation, notamment pour assurer la conformité du SMSI à la norme et pour rendre compte de ses performances à la direction. Désigner un chef de projet n’en est qu’une partie.","domain":2}];
+</script>
+<script>
+/* ==========================================================================
+   Quiz ISO/IEC 27001 LI — moteur de diapositives
+   Un seul fichier, deux modes commutables a chaud :
+     « entrainement » -> on repond, verdict vert / rouge, puis l'explication
+     « corrige »      -> bonne reponse en vert, mauvaises en rouge, explication
+   Les donnees (QUESTIONS) et la configuration (CONFIG) sont injectees avant
+   ce script. CONFIG est facultatif : sans lui, le moteur regroupe par quiz.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  var CFG = (typeof CONFIG === 'object' && CONFIG) || {};
+  var GROUP = CFG.group || 'Quiz';              /* libelle d'un regroupement */
+  var GROUPS = CFG.groups || 'quiz';            /* pluriel, en minuscules     */
+  var GROUP_PAD = CFG.groupPad || 2;            /* « Quiz 01 », « Domaine 1 » */
+  var BASELINE = CFG.baseline || null;          /* { n: % obtenu a l'examen } */
+  var TARGET = CFG.target || 70;                /* seuil de reussite vise, %  */
+  /* La synthese peut regrouper autrement que la navigation : par exemple,
+     naviguer par scenario mais compter par domaine d'examen (champ q.domain). */
+  var BY_DOMAIN = CFG.reportBy === 'domain';
+  var R_GROUP = BY_DOMAIN ? (CFG.reportGroup || 'Domaine') : GROUP;
+  var R_GROUPS = BY_DOMAIN ? (CFG.reportGroups || 'domaines') : GROUPS;
+
+  var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+  var STORE = CFG.store || 'iso27001-quiz-v2';
+  var TRAINING = 'entrainement';
+  var KEY = 'corrige';
+  var total = QUESTIONS.length;
+
+  /* --- etat ------------------------------------------------------------- */
+  var state = { pos: 0, answers: {}, mode: TRAINING };
+
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (saved && typeof saved === 'object') {
+      if (saved.mode === KEY || saved.mode === TRAINING) state.mode = saved.mode;
+      if (typeof saved.pos === 'number') state.pos = Math.min(Math.max(saved.pos, 0), total);
+      if (saved.answers && typeof saved.answers === 'object') state.answers = saved.answers;
+    }
+  } catch (e) { /* stockage indisponible : on continue sans reprise */ }
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function isTraining() { return state.mode === TRAINING; }
+
+  /* La synthese n'existe qu'en entrainement : elle occupe la position
+     total, juste apres la derniere question. */
+  function maxPos() { return isTraining() ? total : total - 1; }
+
+  /* --- index des quiz --------------------------------------------------- */
+  var quizzes = [];
+  var byQuiz = {};
+  QUESTIONS.forEach(function (q, i) {
+    if (!byQuiz[q.quiz]) {
+      byQuiz[q.quiz] = { n: q.quiz, title: q.quizTitle, items: [] };
+      quizzes.push(byQuiz[q.quiz]);
+    }
+    byQuiz[q.quiz].items.push(i);
+  });
+
+  var reportGroups = quizzes;
+  if (BY_DOMAIN) {
+    var byDomain = {};
+    reportGroups = [];
+    QUESTIONS.forEach(function (q, i) {
+      if (!byDomain[q.domain]) {
+        byDomain[q.domain] = { n: q.domain, title: (CFG.domains || {})[q.domain] || '', items: [] };
+        reportGroups.push(byDomain[q.domain]);
+      }
+      byDomain[q.domain].items.push(i);
+    });
+    reportGroups.sort(function (a, b) { return a.n - b.n; });
+  }
+
+  /* --- raccourcis DOM --------------------------------------------------- */
+  var $ = function (sel) { return document.querySelector(sel); };
+  var stage = $('#stage');
+  var fill = $('#progressFill');
+  var counter = $('#counter');
+  var scoreEl = $('#score');
+  var ticksLabel = $('#ticksLabel');
+  var ticksStrip = $('#ticksStrip');
+  var sheet = $('#sheet');
+  var sheetGrid = $('#sheetGrid');
+  var keyhint = $('#keyhint');
+  var btnPrev = $('#btnPrev');
+  var btnNext = $('#btnNext');
+  var btnReset = $('#btnReset');
+  var modeBtns = [].slice.call(document.querySelectorAll('[data-mode]'));
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function pad(n, width) {
+    var s = String(n);
+    while (s.length < width) s = '0' + s;
+    return s;
+  }
+
+  /* --- comptages -------------------------------------------------------- */
+  function answered() { return Object.keys(state.answers).length; }
+
+  function correctCount() {
+    var c = 0;
+    Object.keys(state.answers).forEach(function (k) {
+      if (QUESTIONS[+k] && state.answers[k] === QUESTIONS[+k].correct) c++;
+    });
+    return c;
+  }
+
+  function quizStats(quiz) {
+    var ok = 0, bad = 0;
+    quiz.items.forEach(function (i) {
+      var pick = state.answers[i];
+      if (pick == null) return;
+      if (pick === QUESTIONS[i].correct) ok++; else bad++;
+    });
+    return { ok: ok, bad: bad, done: ok + bad, total: quiz.items.length };
+  }
+
+  /* --- bloc explication ------------------------------------------------- */
+  function explainBlock(q) {
+    var box = el('div', 'explain');
+    box.appendChild(el('div', 'explain__label', 'Explication'));
+    box.appendChild(el('p', null, q.explanation));
+    return box;
+  }
+
+  /* --- rendu d'une diapositive question --------------------------------- */
+  function renderQuestion(index) {
+    var q = QUESTIONS[index];
+    var training = isTraining();
+    var pick = state.answers[index];
+    var revealed = !training || pick != null;
+
+    var slide = el('div', 'slide');
+    slide.setAttribute('role', 'group');
+    slide.setAttribute('aria-label', 'Question ' + q.n + ' sur ' + total);
+
+    /* bandeau de reperage */
+    var eyebrow = el('div', 'slide__eyebrow');
+    eyebrow.appendChild(el('span', 'chip chip--quiz', GROUP + ' ' + pad(q.quiz, GROUP_PAD)));
+    if (q.scenario && CFG.scenarioChip !== false) {
+      eyebrow.appendChild(el('span', 'chip chip--scenario', 'Scénario ' + q.scenario));
+    }
+    if (q.domain != null) {
+      var dchip = el('span', 'chip chip--scenario', 'Domaine ' + q.domain);
+      var dtitle = (CFG.domains || {})[q.domain];
+      if (dtitle) dchip.title = dtitle;
+      eyebrow.appendChild(dchip);
+    }
+    eyebrow.appendChild(el('span', 'slide__topic', q.quizTitle));
+    slide.appendChild(eyebrow);
+
+    /* dossier de scenario : ouvert sur la premiere question, replie ensuite */
+    if (q.scenarioText && q.scenarioText.length) {
+      var siblings = QUESTIONS.reduce(function (acc, item, i) {
+        if (item.quiz === q.quiz && item.scenario === q.scenario) acc.push(i);
+        return acc;
+      }, []);
+      var isFirst = siblings[0] === index;
+
+      var det = el('details', isFirst ? 'scenario scenario--lead' : 'scenario');
+      det.open = isFirst;
+      det.appendChild(el('summary', null, 'Scénario ' + q.scenario + ' — contexte'
+        + (isFirst ? '' : ' (replié)')));
+
+      var body = el('div', 'scenario__body');
+      var prose = el('div', 'scenario__prose');
+      q.scenarioText.forEach(function (para) { prose.appendChild(el('p', null, para)); });
+      body.appendChild(prose);
+
+      var jump = el('nav', 'scenario__jump');
+      jump.setAttribute('aria-label', 'Questions du scénario ' + q.scenario);
+      jump.appendChild(el('span', 'scenario__jump-label', siblings.length + ' questions'));
+      siblings.forEach(function (i) {
+        var b = el('button', 'jumpbtn', 'Question ' + pad(QUESTIONS[i].n, 3));
+        b.type = 'button';
+        if (i === index) b.setAttribute('aria-current', 'true');
+        b.addEventListener('click', function () { go(i); });
+        jump.appendChild(b);
+      });
+      body.appendChild(jump);
+
+      det.appendChild(body);
+      slide.appendChild(det);
+    }
+
+    /* enonce */
+    var qBlock = el('div', 'question');
+    qBlock.appendChild(el('div', 'question__index mono', pad(q.n, 3)));
+    qBlock.appendChild(el('h1', 'question__text', q.question));
+    slide.appendChild(qBlock);
+
+    /* verdict immediat (entrainement, apres reponse) */
+    if (training && pick != null) {
+      var good = pick === q.correct;
+      var bar = el('div', 'verdictbar');
+      bar.setAttribute('data-verdict', good ? 'ok' : 'bad');
+      bar.setAttribute('role', 'status');
+      bar.appendChild(el('span', null, good ? '✓ Bonne réponse' : '✗ Mauvaise réponse'));
+      if (!good) {
+        bar.appendChild(el('small', null, 'La bonne réponse est ' + LETTERS[q.correct] + '.'));
+      }
+      slide.appendChild(bar);
+    }
+
+    /* options */
+    var list = el('ul', 'options');
+    q.options.forEach(function (text, i) {
+      var li = el('li');
+      var btn = el('button', 'option');
+      btn.type = 'button';
+      btn.style.setProperty('--delay', (i * 0.045) + 's');
+      btn.appendChild(el('span', 'option__key', LETTERS[i]));
+      btn.appendChild(el('span', 'option__label', text));
+      var verdict = el('span', 'option__verdict');
+      btn.appendChild(verdict);
+
+      if (revealed) {
+        var good = i === q.correct;
+        btn.setAttribute('data-verdict', good ? 'ok' : 'bad');
+        btn.disabled = true;
+        if (good) {
+          verdict.textContent = '✓ Bonne réponse';
+        } else if (training && pick === i) {
+          verdict.textContent = '✗ Votre réponse';
+        } else {
+          verdict.textContent = '✗ Mauvaise réponse';
+        }
+        if (training && pick === i) btn.setAttribute('data-picked', 'true');
+      } else {
+        btn.addEventListener('click', function () { answer(index, i); });
+      }
+
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+    slide.appendChild(list);
+
+    /* explication : d'emblee en corrige, apres la reponse en entrainement */
+    if (revealed && q.explanation) slide.appendChild(explainBlock(q));
+
+    /* invitation a repondre, tant que rien n'est coche */
+    if (!revealed) {
+      var hint = el('p', 'prompt', 'Choisissez une réponse pour voir le verdict et l’explication.');
+      slide.appendChild(hint);
+    }
+
+    return slide;
+  }
+
+  /* --- comparaison a l'examen ------------------------------------------- */
+  function scoreOf(s) { return s.done ? (s.ok / s.done) * 100 : null; }
+
+  function fmtPct(v) { return v == null ? '—' : (Math.round(v * 10) / 10).toString().replace('.', ',') + ' %'; }
+
+  /* Combien de regroupements, parmi ceux deja abordes, atteignent le seuil */
+  function aboveTarget() {
+    var started = 0, reached = 0;
+    reportGroups.forEach(function (quiz) {
+      var v = scoreOf(quizStats(quiz));
+      if (v == null) return;
+      started++;
+      if (v >= TARGET) reached++;
+    });
+    return ['metric metric--accent', reached + ' / ' + started,
+      R_GROUPS.charAt(0).toUpperCase() + R_GROUPS.slice(1) + ' ≥ ' + TARGET + ' %'];
+  }
+
+  /* --- rendu de la diapositive de synthese ------------------------------ */
+  function renderReport() {
+    var wrap = el('div', 'slide wrap');
+    var done = answered();
+    var ok = correctCount();
+    var bad = done - ok;
+    var pct = done ? Math.round((ok / done) * 100) : 0;
+
+    var eyebrow = el('div', 'slide__eyebrow');
+    eyebrow.appendChild(el('span', 'chip chip--quiz', 'Synthèse'));
+    eyebrow.appendChild(el('span', 'slide__topic', total + ' questions · ' + quizzes.length + ' ' + GROUPS
+      + (BY_DOMAIN ? ' · ' + reportGroups.length + ' ' + R_GROUPS : '')));
+    wrap.appendChild(eyebrow);
+
+    wrap.appendChild(el('h1', 'wrap__title', CFG.reportTitle || ('Résultats des ' + quizzes.length + ' ' + GROUPS)));
+    var lede = done === total
+      ? 'Vous avez répondu à l’ensemble des ' + total + ' questions.'
+      : 'Vous avez répondu à ' + done + ' des ' + total + ' questions.';
+    lede += BASELINE
+      ? ' Chaque ' + R_GROUP.toLowerCase() + ' est comparé à votre résultat d’examen ; le seuil visé est de ' + TARGET + ' %.'
+      : ' Le détail par ' + R_GROUP.toLowerCase() + ' indique où concentrer vos révisions.';
+    wrap.appendChild(el('p', 'wrap__lede', lede));
+
+    var metrics = el('div', 'metrics');
+    [
+      ['metric metric--accent', pct + ' %', 'Taux de réussite'],
+      ['metric metric--ok', String(ok), 'Bonnes réponses'],
+      ['metric metric--bad', String(bad), 'Mauvaises réponses'],
+      ['metric', done + ' / ' + total, 'Questions traitées']
+    ].concat(BASELINE ? [aboveTarget()] : []).forEach(function (m) {
+      var card = el('div', m[0]);
+      card.appendChild(el('div', 'metric__value mono', m[1]));
+      card.appendChild(el('div', 'metric__label', m[2]));
+      metrics.appendChild(card);
+    });
+    wrap.appendChild(metrics);
+
+    var tw = el('div', 'tablewrap');
+    var table = el('table', 'report');
+    var thead = el('thead');
+    var hr = el('tr');
+    var heads = [R_GROUP, 'Thème', 'Traitées', 'Justes', 'Fausses', 'Score'];
+    if (BASELINE) heads = heads.concat(['Examen', 'Écart']);
+    heads.forEach(function (h, i) {
+      hr.appendChild(el('th', i === 1 ? null : 'num', h));
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    var tbody = el('tbody');
+    reportGroups.forEach(function (quiz) {
+      var s = quizStats(quiz);
+      var tr = el('tr');
+      tr.appendChild(el('td', 'num', pad(quiz.n, GROUP_PAD)));
+
+      var tdTitle = el('td', 'title');
+      var link = el('button', 'linkbtn', quiz.title);
+      link.type = 'button';
+      link.addEventListener('click', function () { go(quiz.items[0]); });
+      tdTitle.appendChild(link);
+      tr.appendChild(tdTitle);
+
+      tr.appendChild(el('td', 'num', s.done + ' / ' + s.total));
+
+      var tdOk = el('td', 'num');
+      tdOk.appendChild(el('span', s.ok ? 'ok' : null, String(s.ok)));
+      tr.appendChild(tdOk);
+
+      var tdBad = el('td', 'num');
+      tdBad.appendChild(el('span', s.bad ? 'bad' : null, String(s.bad)));
+      tr.appendChild(tdBad);
+
+      var score = scoreOf(s);
+      var tdScore = el('td', 'num');
+      tdScore.appendChild(el('span', score == null ? null : (score >= TARGET ? 'ok' : 'bad'), fmtPct(score)));
+      tr.appendChild(tdScore);
+
+      if (BASELINE) {
+        var base = BASELINE[quiz.n];
+        tr.appendChild(el('td', 'num', base == null ? '—' : fmtPct(base)));
+        var tdDelta = el('td', 'num');
+        if (score == null || base == null) {
+          tdDelta.textContent = '—';
+        } else {
+          var d = Math.round((score - base) * 10) / 10;
+          if (d === 0) {
+            tdDelta.textContent = '0 pt';
+          } else {
+            tdDelta.appendChild(el('span', d > 0 ? 'ok' : 'bad',
+              (d > 0 ? '+' : '−') + fmtPct(Math.abs(d)).replace(' %', ' pts')));
+          }
+        }
+        tr.appendChild(tdDelta);
+      }
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    tw.appendChild(table);
+    wrap.appendChild(tw);
+
+    var actions = el('div', 'wrap__actions');
+
+    var again = el('button', 'navbtn navbtn--primary', 'Recommencer');
+    again.type = 'button';
+    again.addEventListener('click', reset);
+    actions.appendChild(again);
+
+    var review = el('button', 'navbtn', 'Passer au corrigé complet');
+    review.type = 'button';
+    review.addEventListener('click', function () { setMode(KEY, 0); });
+    actions.appendChild(review);
+
+    /* raccourci vers les questions manquees */
+    var missed = Object.keys(state.answers).filter(function (k) {
+      return state.answers[k] !== QUESTIONS[+k].correct;
+    }).map(Number).sort(function (a, b) { return a - b; });
+
+    if (missed.length) {
+      var toMissed = el('button', 'navbtn',
+        'Revoir la 1re erreur (question ' + pad(QUESTIONS[missed[0]].n, 3) + ')');
+      toMissed.type = 'button';
+      toMissed.addEventListener('click', function () { go(missed[0]); });
+      actions.appendChild(toMissed);
+    }
+
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  /* --- appareillage : compteurs, jauge, releve -------------------------- */
+  var HINT_TRAINING = '<span><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd> répondre</span>'
+    + '<span><kbd>&#8592;</kbd><kbd>&#8594;</kbd> naviguer</span>'
+    + '<span><kbd>M</kbd> mode</span><span><kbd>S</kbd> sommaire</span>';
+  var HINT_KEY = '<span><kbd>&#8592;</kbd><kbd>&#8594;</kbd> naviguer</span>'
+    + '<span><kbd>M</kbd> revenir à l’entraînement</span><span><kbd>S</kbd> sommaire</span>';
+
+  function renderChrome() {
+    var training = isTraining();
+    var onReport = training && state.pos >= total;
+    var q = onReport ? null : QUESTIONS[state.pos];
+
+    modeBtns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
+    });
+
+    keyhint.innerHTML = training ? HINT_TRAINING : HINT_KEY;
+
+    counter.innerHTML = '';
+    if (onReport) {
+      counter.appendChild(el('span', null, 'Synthèse'));
+    } else {
+      counter.appendChild(el('b', null, pad(q.n, 3)));
+      counter.appendChild(document.createTextNode(' / ' + total));
+    }
+
+    scoreEl.hidden = !training;
+    btnReset.hidden = !training;
+    if (training) {
+      scoreEl.innerHTML = '';
+      scoreEl.appendChild(el('b', null, String(correctCount())));
+      scoreEl.appendChild(document.createTextNode(' justes / ' + answered() + ' traitées'));
+    }
+
+    var shown = onReport ? total : state.pos;
+    fill.style.width = ((shown / total) * 100).toFixed(2) + '%';
+
+    /* releve du quiz courant */
+    ticksStrip.innerHTML = '';
+    if (onReport) {
+      ticksLabel.textContent = 'Fin du parcours';
+      return;
+    }
+    var quiz = byQuiz[q.quiz];
+    var s = quizStats(quiz);
+    ticksLabel.textContent = GROUP + ' ' + pad(quiz.n, GROUP_PAD) + ' · ' +
+      (training ? s.done + '/' + s.total + ' traitées' : s.total + ' questions');
+
+    quiz.items.forEach(function (i) {
+      var t = el('button', 'tick');
+      t.type = 'button';
+      var label = 'Question ' + QUESTIONS[i].n;
+      var pick = state.answers[i];
+      if (pick != null) {
+        var good = pick === QUESTIONS[i].correct;
+        t.setAttribute('data-state', good ? 'ok' : 'bad');
+        label += good ? ' — juste' : ' — fausse';
+      } else if (!training && i < state.pos) {
+        t.setAttribute('data-state', 'seen');
+      }
+      if (i === state.pos) t.setAttribute('aria-current', 'true');
+      t.setAttribute('aria-label', label);
+      t.title = label;
+      t.addEventListener('click', function () { go(i); });
+      ticksStrip.appendChild(t);
+    });
+  }
+
+  /* --- navigation ------------------------------------------------------- */
+  function render() {
+    stage.innerHTML = '';
+    stage.appendChild(isTraining() && state.pos >= total
+      ? renderReport()
+      : renderQuestion(state.pos));
+    stage.scrollTop = 0;
+    renderChrome();
+    btnPrev.disabled = state.pos === 0;
+    btnNext.disabled = state.pos >= maxPos();
+    save();
+  }
+
+  function go(pos) {
+    state.pos = Math.min(Math.max(pos, 0), maxPos());
+    closeSheet();
+    render();
+  }
+
+  function answer(index, choice) {
+    state.answers[index] = choice;
+    save();
+    render();
+  }
+
+  /* Bascule de mode. La position est conservee : on reste sur la meme
+     question en passant de l'entrainement au corrige et inversement. */
+  function setMode(mode, pos) {
+    if (mode !== TRAINING && mode !== KEY) return;
+    var wasOnReport = isTraining() && state.pos >= total;
+    state.mode = mode;
+    if (pos != null) state.pos = pos;
+    /* depuis la synthese, le corrige reprend au debut plutot que de retomber
+       sur la derniere question par simple recadrage */
+    else if (wasOnReport && mode === KEY) state.pos = 0;
+    state.pos = Math.min(Math.max(state.pos, 0), maxPos());
+    closeSheet();
+    render();
+  }
+
+  function toggleMode() { setMode(isTraining() ? KEY : TRAINING); }
+
+  function reset() {
+    if (!window.confirm('Effacer toutes vos réponses et repartir de la question 1 ?')) return;
+    state.answers = {};
+    state.pos = 0;
+    state.mode = TRAINING;
+    save();
+    render();
+  }
+
+  /* --- sommaire --------------------------------------------------------- */
+  function buildSheet() {
+    sheetGrid.innerHTML = '';
+    quizzes.forEach(function (quiz) {
+      var card = el('button', 'quizcard');
+      card.type = 'button';
+      if (QUESTIONS[state.pos] && QUESTIONS[state.pos].quiz === quiz.n) {
+        card.setAttribute('aria-current', 'true');
+      }
+      card.appendChild(el('span', 'quizcard__n', pad(quiz.n, GROUP_PAD)));
+      card.appendChild(el('span', 'quizcard__title', quiz.title));
+
+      var meta = el('span', 'quizcard__meta');
+      var s = quizStats(quiz);
+      meta.appendChild(document.createTextNode(quiz.items.length + ' questions'));
+      if (s.done) {
+        meta.appendChild(document.createTextNode(' · '));
+        meta.appendChild(el('span', 'ok', s.ok + ' justes'));
+        meta.appendChild(document.createTextNode(' · '));
+        meta.appendChild(el('span', 'bad', s.bad + ' fausses'));
+      }
+      card.appendChild(meta);
+
+      card.addEventListener('click', function () { go(quiz.items[0]); });
+      sheetGrid.appendChild(card);
+    });
+  }
+
+  function openSheet() {
+    buildSheet();
+    sheet.setAttribute('data-open', 'true');
+    var current = sheetGrid.querySelector('[aria-current="true"]') || sheetGrid.firstChild;
+    if (current) current.focus();
+  }
+
+  function closeSheet() { sheet.setAttribute('data-open', 'false'); }
+
+  function toggleSheet() {
+    if (sheet.getAttribute('data-open') === 'true') closeSheet(); else openSheet();
+  }
+
+  /* --- branchements ----------------------------------------------------- */
+  btnPrev.addEventListener('click', function () { go(state.pos - 1); });
+  btnNext.addEventListener('click', function () { go(state.pos + 1); });
+  btnReset.addEventListener('click', reset);
+  $('#btnIndex').addEventListener('click', toggleSheet);
+  $('#sheetClose').addEventListener('click', closeSheet);
+  sheet.addEventListener('click', function (ev) { if (ev.target === sheet) closeSheet(); });
+
+  modeBtns.forEach(function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.mode); });
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    var tag = (ev.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    if (ev.key === 'Escape') {
+      if (sheet.getAttribute('data-open') === 'true') { closeSheet(); ev.preventDefault(); }
+      return;
+    }
+
+    /* sommaire ouvert : on laisse le clavier au sommaire */
+    if (sheet.getAttribute('data-open') === 'true') return;
+
+    /* un bouton a le focus : Entree et Espace lui appartiennent */
+    var onControl = tag === 'button' || tag === 'summary' || tag === 'a';
+    if (onControl && (ev.key === 'Enter' || ev.key === ' ')) return;
+
+    switch (ev.key) {
+      case 'ArrowRight': case 'PageDown': case ' ': case 'Enter':
+        go(state.pos + 1); ev.preventDefault(); return;
+      case 'ArrowLeft': case 'PageUp':
+        go(state.pos - 1); ev.preventDefault(); return;
+      case 'Home':
+        go(0); ev.preventDefault(); return;
+      case 'End':
+        go(maxPos()); ev.preventDefault(); return;
+    }
+
+    var k = ev.key.toLowerCase();
+    if (k === 's') { toggleSheet(); ev.preventDefault(); return; }
+    if (k === 'm') { toggleMode(); ev.preventDefault(); return; }
+
+    if (isTraining() && state.pos < total && state.answers[state.pos] == null) {
+      var q = QUESTIONS[state.pos];
+      var idx = -1;
+      if (ev.key >= '1' && ev.key <= '9') idx = +ev.key - 1;
+      else if (k >= 'a' && k <= 'f') idx = k.charCodeAt(0) - 97;
+      if (idx >= 0 && idx < q.options.length) { answer(state.pos, idx); ev.preventDefault(); }
+    }
+  });
+
+  render();
+})();
+
+</script>

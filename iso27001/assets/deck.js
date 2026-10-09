@@ -3,13 +3,26 @@
    Un seul fichier, deux modes commutables a chaud :
      « entrainement » -> on repond, verdict vert / rouge, puis l'explication
      « corrige »      -> bonne reponse en vert, mauvaises en rouge, explication
-   Les donnees (QUESTIONS) sont injectees avant ce script.
+   Les donnees (QUESTIONS) et la configuration (CONFIG) sont injectees avant
+   ce script. CONFIG est facultatif : sans lui, le moteur regroupe par quiz.
    ========================================================================== */
 (function () {
   'use strict';
 
+  var CFG = (typeof CONFIG === 'object' && CONFIG) || {};
+  var GROUP = CFG.group || 'Quiz';              /* libelle d'un regroupement */
+  var GROUPS = CFG.groups || 'quiz';            /* pluriel, en minuscules     */
+  var GROUP_PAD = CFG.groupPad || 2;            /* « Quiz 01 », « Domaine 1 » */
+  var BASELINE = CFG.baseline || null;          /* { n: % obtenu a l'examen } */
+  var TARGET = CFG.target || 70;                /* seuil de reussite vise, %  */
+  /* La synthese peut regrouper autrement que la navigation : par exemple,
+     naviguer par scenario mais compter par domaine d'examen (champ q.domain). */
+  var BY_DOMAIN = CFG.reportBy === 'domain';
+  var R_GROUP = BY_DOMAIN ? (CFG.reportGroup || 'Domaine') : GROUP;
+  var R_GROUPS = BY_DOMAIN ? (CFG.reportGroups || 'domaines') : GROUPS;
+
   var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
-  var STORE = 'iso27001-quiz-v2';
+  var STORE = CFG.store || 'iso27001-quiz-v2';
   var TRAINING = 'entrainement';
   var KEY = 'corrige';
   var total = QUESTIONS.length;
@@ -46,6 +59,20 @@
     }
     byQuiz[q.quiz].items.push(i);
   });
+
+  var reportGroups = quizzes;
+  if (BY_DOMAIN) {
+    var byDomain = {};
+    reportGroups = [];
+    QUESTIONS.forEach(function (q, i) {
+      if (!byDomain[q.domain]) {
+        byDomain[q.domain] = { n: q.domain, title: (CFG.domains || {})[q.domain] || '', items: [] };
+        reportGroups.push(byDomain[q.domain]);
+      }
+      byDomain[q.domain].items.push(i);
+    });
+    reportGroups.sort(function (a, b) { return a.n - b.n; });
+  }
 
   /* --- raccourcis DOM --------------------------------------------------- */
   var $ = function (sel) { return document.querySelector(sel); };
@@ -118,9 +145,15 @@
 
     /* bandeau de reperage */
     var eyebrow = el('div', 'slide__eyebrow');
-    eyebrow.appendChild(el('span', 'chip chip--quiz', 'Quiz ' + pad(q.quiz, 2)));
-    if (q.scenario) {
+    eyebrow.appendChild(el('span', 'chip chip--quiz', GROUP + ' ' + pad(q.quiz, GROUP_PAD)));
+    if (q.scenario && CFG.scenarioChip !== false) {
       eyebrow.appendChild(el('span', 'chip chip--scenario', 'Scénario ' + q.scenario));
+    }
+    if (q.domain != null) {
+      var dchip = el('span', 'chip chip--scenario', 'Domaine ' + q.domain);
+      var dtitle = (CFG.domains || {})[q.domain];
+      if (dtitle) dchip.title = dtitle;
+      eyebrow.appendChild(dchip);
     }
     eyebrow.appendChild(el('span', 'slide__topic', q.quizTitle));
     slide.appendChild(eyebrow);
@@ -133,7 +166,7 @@
       }, []);
       var isFirst = siblings[0] === index;
 
-      var det = el('details', 'scenario');
+      var det = el('details', isFirst ? 'scenario scenario--lead' : 'scenario');
       det.open = isFirst;
       det.appendChild(el('summary', null, 'Scénario ' + q.scenario + ' — contexte'
         + (isFirst ? '' : ' (replié)')));
@@ -223,6 +256,24 @@
     return slide;
   }
 
+  /* --- comparaison a l'examen ------------------------------------------- */
+  function scoreOf(s) { return s.done ? (s.ok / s.done) * 100 : null; }
+
+  function fmtPct(v) { return v == null ? '—' : (Math.round(v * 10) / 10).toString().replace('.', ',') + ' %'; }
+
+  /* Combien de regroupements, parmi ceux deja abordes, atteignent le seuil */
+  function aboveTarget() {
+    var started = 0, reached = 0;
+    reportGroups.forEach(function (quiz) {
+      var v = scoreOf(quizStats(quiz));
+      if (v == null) return;
+      started++;
+      if (v >= TARGET) reached++;
+    });
+    return ['metric metric--accent', reached + ' / ' + started,
+      R_GROUPS.charAt(0).toUpperCase() + R_GROUPS.slice(1) + ' ≥ ' + TARGET + ' %'];
+  }
+
   /* --- rendu de la diapositive de synthese ------------------------------ */
   function renderReport() {
     var wrap = el('div', 'slide wrap');
@@ -233,13 +284,18 @@
 
     var eyebrow = el('div', 'slide__eyebrow');
     eyebrow.appendChild(el('span', 'chip chip--quiz', 'Synthèse'));
-    eyebrow.appendChild(el('span', 'slide__topic', total + ' questions · 27 quiz'));
+    eyebrow.appendChild(el('span', 'slide__topic', total + ' questions · ' + quizzes.length + ' ' + GROUPS
+      + (BY_DOMAIN ? ' · ' + reportGroups.length + ' ' + R_GROUPS : '')));
     wrap.appendChild(eyebrow);
 
-    wrap.appendChild(el('h1', 'wrap__title', 'Résultats des 27 quiz'));
-    wrap.appendChild(el('p', 'wrap__lede', done === total
-      ? 'Vous avez répondu à l’ensemble des ' + total + ' questions. Le détail par quiz indique où concentrer vos révisions avant l’examen.'
-      : 'Vous avez répondu à ' + done + ' des ' + total + ' questions. Le détail par quiz indique où concentrer vos révisions.'));
+    wrap.appendChild(el('h1', 'wrap__title', CFG.reportTitle || ('Résultats des ' + quizzes.length + ' ' + GROUPS)));
+    var lede = done === total
+      ? 'Vous avez répondu à l’ensemble des ' + total + ' questions.'
+      : 'Vous avez répondu à ' + done + ' des ' + total + ' questions.';
+    lede += BASELINE
+      ? ' Chaque ' + R_GROUP.toLowerCase() + ' est comparé à votre résultat d’examen ; le seuil visé est de ' + TARGET + ' %.'
+      : ' Le détail par ' + R_GROUP.toLowerCase() + ' indique où concentrer vos révisions.';
+    wrap.appendChild(el('p', 'wrap__lede', lede));
 
     var metrics = el('div', 'metrics');
     [
@@ -247,7 +303,7 @@
       ['metric metric--ok', String(ok), 'Bonnes réponses'],
       ['metric metric--bad', String(bad), 'Mauvaises réponses'],
       ['metric', done + ' / ' + total, 'Questions traitées']
-    ].forEach(function (m) {
+    ].concat(BASELINE ? [aboveTarget()] : []).forEach(function (m) {
       var card = el('div', m[0]);
       card.appendChild(el('div', 'metric__value mono', m[1]));
       card.appendChild(el('div', 'metric__label', m[2]));
@@ -259,17 +315,19 @@
     var table = el('table', 'report');
     var thead = el('thead');
     var hr = el('tr');
-    ['Quiz', 'Thème', 'Traitées', 'Justes', 'Fausses', 'Score'].forEach(function (h, i) {
+    var heads = [R_GROUP, 'Thème', 'Traitées', 'Justes', 'Fausses', 'Score'];
+    if (BASELINE) heads = heads.concat(['Examen', 'Écart']);
+    heads.forEach(function (h, i) {
       hr.appendChild(el('th', i === 1 ? null : 'num', h));
     });
     thead.appendChild(hr);
     table.appendChild(thead);
 
     var tbody = el('tbody');
-    quizzes.forEach(function (quiz) {
+    reportGroups.forEach(function (quiz) {
       var s = quizStats(quiz);
       var tr = el('tr');
-      tr.appendChild(el('td', 'num', pad(quiz.n, 2)));
+      tr.appendChild(el('td', 'num', pad(quiz.n, GROUP_PAD)));
 
       var tdTitle = el('td', 'title');
       var link = el('button', 'linkbtn', quiz.title);
@@ -288,7 +346,28 @@
       tdBad.appendChild(el('span', s.bad ? 'bad' : null, String(s.bad)));
       tr.appendChild(tdBad);
 
-      tr.appendChild(el('td', 'num', s.done ? Math.round((s.ok / s.done) * 100) + ' %' : '—'));
+      var score = scoreOf(s);
+      var tdScore = el('td', 'num');
+      tdScore.appendChild(el('span', score == null ? null : (score >= TARGET ? 'ok' : 'bad'), fmtPct(score)));
+      tr.appendChild(tdScore);
+
+      if (BASELINE) {
+        var base = BASELINE[quiz.n];
+        tr.appendChild(el('td', 'num', base == null ? '—' : fmtPct(base)));
+        var tdDelta = el('td', 'num');
+        if (score == null || base == null) {
+          tdDelta.textContent = '—';
+        } else {
+          var d = Math.round((score - base) * 10) / 10;
+          if (d === 0) {
+            tdDelta.textContent = '0 pt';
+          } else {
+            tdDelta.appendChild(el('span', d > 0 ? 'ok' : 'bad',
+              (d > 0 ? '+' : '−') + fmtPct(Math.abs(d)).replace(' %', ' pts')));
+          }
+        }
+        tr.appendChild(tdDelta);
+      }
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
@@ -369,7 +448,7 @@
     }
     var quiz = byQuiz[q.quiz];
     var s = quizStats(quiz);
-    ticksLabel.textContent = 'Quiz ' + pad(quiz.n, 2) + ' · ' +
+    ticksLabel.textContent = GROUP + ' ' + pad(quiz.n, GROUP_PAD) + ' · ' +
       (training ? s.done + '/' + s.total + ' traitées' : s.total + ' questions');
 
     quiz.items.forEach(function (i) {
@@ -452,7 +531,7 @@
       if (QUESTIONS[state.pos] && QUESTIONS[state.pos].quiz === quiz.n) {
         card.setAttribute('aria-current', 'true');
       }
-      card.appendChild(el('span', 'quizcard__n', pad(quiz.n, 2)));
+      card.appendChild(el('span', 'quizcard__n', pad(quiz.n, GROUP_PAD)));
       card.appendChild(el('span', 'quizcard__title', quiz.title));
 
       var meta = el('span', 'quizcard__meta');

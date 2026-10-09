@@ -399,6 +399,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   overflow-y: auto;
 }
 
+/* premiere question d'un scenario : le recit se lit en entier, sans ascenseur
+   interne ; les questions suivantes le replient */
+.scenario--lead .scenario__body { max-height: none; overflow: visible; }
+
 .scenario__prose { max-width: 72ch; }
 .scenario__prose p {
   margin: 0 0 .7rem;
