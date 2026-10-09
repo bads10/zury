@@ -74,6 +74,16 @@
     reportGroups.sort(function (a, b) { return a.n - b.n; });
   }
 
+  /* Libelles d'une serie. Par defaut « Scénario 3 » ; une question peut les
+     surcharger (groupTag pour la puce et le releve, groupShort pour le
+     sommaire, scenarioLabel pour le dossier de contexte). */
+  function groupTag(quiz) {
+    return QUESTIONS[quiz.items[0]].groupTag || (GROUP + ' ' + pad(quiz.n, GROUP_PAD));
+  }
+  function groupShort(quiz) {
+    return QUESTIONS[quiz.items[0]].groupShort || pad(quiz.n, GROUP_PAD);
+  }
+
   /* --- raccourcis DOM --------------------------------------------------- */
   var $ = function (sel) { return document.querySelector(sel); };
   var stage = $('#stage');
@@ -145,7 +155,7 @@
 
     /* bandeau de reperage */
     var eyebrow = el('div', 'slide__eyebrow');
-    eyebrow.appendChild(el('span', 'chip chip--quiz', GROUP + ' ' + pad(q.quiz, GROUP_PAD)));
+    eyebrow.appendChild(el('span', 'chip chip--quiz', groupTag(byQuiz[q.quiz])));
     if (q.scenario && CFG.scenarioChip !== false) {
       eyebrow.appendChild(el('span', 'chip chip--scenario', 'Scénario ' + q.scenario));
     }
@@ -168,7 +178,7 @@
 
       var det = el('details', isFirst ? 'scenario scenario--lead' : 'scenario');
       det.open = isFirst;
-      det.appendChild(el('summary', null, 'Scénario ' + q.scenario + ' — contexte'
+      det.appendChild(el('summary', null, (q.scenarioLabel || ('Scénario ' + q.scenario)) + ' — contexte'
         + (isFirst ? '' : ' (replié)')));
 
       var body = el('div', 'scenario__body');
@@ -177,7 +187,7 @@
       body.appendChild(prose);
 
       var jump = el('nav', 'scenario__jump');
-      jump.setAttribute('aria-label', 'Questions du scénario ' + q.scenario);
+      jump.setAttribute('aria-label', 'Questions de : ' + (q.scenarioLabel || ('Scénario ' + q.scenario)));
       jump.appendChild(el('span', 'scenario__jump-label', siblings.length + ' questions'));
       siblings.forEach(function (i) {
         var b = el('button', 'jumpbtn', 'Question ' + pad(QUESTIONS[i].n, 3));
@@ -448,7 +458,7 @@
     }
     var quiz = byQuiz[q.quiz];
     var s = quizStats(quiz);
-    ticksLabel.textContent = GROUP + ' ' + pad(quiz.n, GROUP_PAD) + ' · ' +
+    ticksLabel.textContent = groupTag(quiz) + ' · ' +
       (training ? s.done + '/' + s.total + ' traitées' : s.total + ' questions');
 
     quiz.items.forEach(function (i) {
@@ -531,7 +541,7 @@
       if (QUESTIONS[state.pos] && QUESTIONS[state.pos].quiz === quiz.n) {
         card.setAttribute('aria-current', 'true');
       }
-      card.appendChild(el('span', 'quizcard__n', pad(quiz.n, GROUP_PAD)));
+      card.appendChild(el('span', 'quizcard__n', groupShort(quiz)));
       card.appendChild(el('span', 'quizcard__title', quiz.title));
 
       var meta = el('span', 'quizcard__meta');

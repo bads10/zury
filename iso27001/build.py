@@ -21,7 +21,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 # formulation du corrigé (questionKey / optionsKey), inutiles à l'affichage.
 FIELDS = ('n', 'quiz', 'quizTitle', 'scenario', 'scenarioText',
           'question', 'options', 'correct', 'explanation')
-OPTIONAL = ('domain',)   # domaine d'examen, utilisé par la synthèse par domaine
+OPTIONAL = ('domain',          # domaine d'examen, utilisé par la synthèse par domaine
+            'groupTag', 'groupShort', 'scenarioLabel')   # libellés de série facultatifs
 
 EDITIONS = {
     'quiz': {
